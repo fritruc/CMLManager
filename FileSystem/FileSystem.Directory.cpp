@@ -10,9 +10,8 @@ namespace nFileSystem
 cDirectory::~cDirectory()
 {
 	for( unsigned int i = 0; i < mContent.size(); ++i )
-	{
 		delete  mContent[ i ];
-	}
+
 	delete  mCMakeFile;
 }
 
@@ -41,6 +40,7 @@ cDirectory::PrintInCMakeListFile() const
 int 
 cDirectory::AddContent( cFileBase* iFile )
 {
+	iFile->Depth( Depth() + 1 );
 	mContent.push_back( iFile );
 	return 0;
 }
@@ -51,7 +51,7 @@ cDirectory::SetMakeFile( cCMakeListsFile* iCMakeFile )
 {
 	mCMakeFile = iCMakeFile;
 	return  0;
-}
+} 
 
 
 int 
@@ -91,7 +91,7 @@ cDirectory::DebugPrint() const
 int 
 cDirectory::DebugPrintContent() const
 {
-	printf( "Content of directory : %s=====", Name().c_str() );
+	printf( "Directory : %s    ", Name().c_str() );
 
 	if( IsCompiled() )
 		printf( " C" );
@@ -99,15 +99,22 @@ cDirectory::DebugPrintContent() const
 		printf( " N" );
 
 	printf( "\n" );
+	std::string tabs;
+	for( int i = 0; i < Depth() + 1; ++i )
+		tabs.append( "      " );
 
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
+		printf( "%s", tabs.c_str() );
 		mContent[ i ]->DebugPrint(); 
 	}
-	if( mCMakeFile )
-		mCMakeFile->DebugPrint();
 
-	printf( "===============\n" );
+	if( mCMakeFile )
+	{
+		printf( "%s", tabs.c_str() );
+		mCMakeFile->DebugPrint(); 
+	}
+
 	return 0;
 }
 

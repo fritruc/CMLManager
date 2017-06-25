@@ -102,9 +102,9 @@ cFile::DebugPrint() const
 	printf( "File : %s", Name().c_str() );
 
 	if( IsCompiled() )
-		printf( " C" );
+		printf( " %*c", 20 - Name().size(), 'C' );
 	if( IsNewFile() )
-		printf( " N" );
+		printf( "  N" );
 
 	switch( mFileOS )
 	{

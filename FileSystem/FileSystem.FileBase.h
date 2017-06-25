@@ -25,8 +25,10 @@ public:
 	bool				IsNewFile() const;
 	int					IsNewFile( bool iIsNewFile );
 
-
 	virtual  bool		IsDirectory() const = 0;
+
+	int					Depth() const;
+	int					Depth( int iDepth );
 //@}
 
 public:
@@ -44,8 +46,11 @@ public:
 private:
 	std::string mPath;
 	std::string mName;
-	bool		mIsCompiled; // The file is compiled or not ( is it in commentary (#) in the CMakeLists file )
-	bool		mIsNewFile;  // The file is new = it's not in the CMakeLists file yet
+
+	bool		mIsCompiled;	// The file is compiled or not ( is it in commentary (#) in the CMakeLists file )
+	bool		mIsNewFile;		// The file is new = it's not in the CMakeLists file yet
+
+	int			mDepth;			//Depth within the file tree
 
 };
 

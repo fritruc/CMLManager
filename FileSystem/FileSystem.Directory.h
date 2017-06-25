@@ -58,7 +58,7 @@ public:
 
 private:
 	std::vector< cFileBase* >	mContent;
-	cCMakeListsFile*					mCMakeFile;
+	cCMakeListsFile*			mCMakeFile;
 };
 
 

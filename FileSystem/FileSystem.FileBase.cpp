@@ -12,7 +12,8 @@ cFileBase::~cFileBase()
 
 cFileBase::cFileBase( const std::string & iPath ) :
 	mPath( iPath ),
-	mIsCompiled( true )
+	mIsCompiled( true ),
+	mDepth( 0 )
 {
 	mName = iPath.substr( iPath.find_last_of( '/' ) + 1 );
 }
@@ -58,6 +59,21 @@ cFileBase::IsNewFile( bool iIsNewFile )
 {
 	mIsNewFile = iIsNewFile;
 	return  0;
+}
+
+
+int 
+cFileBase::Depth() const
+{
+	return  mDepth;
+}
+
+
+int 
+cFileBase::Depth( int iDepth )
+{
+	mDepth = iDepth;
+	return 0;
 }
 
 }
