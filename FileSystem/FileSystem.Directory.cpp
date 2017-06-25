@@ -3,6 +3,9 @@
 #include "FileSystem.CMakeListsFile.h"
 #include "FileSystem.File.h"
 
+#include <fstream>
+#include <iostream>
+
 namespace nFileSystem
 {
 
@@ -31,8 +34,12 @@ cDirectory::IsDirectory() const
 
 
 int 
-cDirectory::PrintInCMakeListFile() const
+cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 {
+	if( !IsCompiled() )
+		iOFStream << "# ";
+
+	iOFStream << "SUBDIRECTORY( " << Name() << " )\n";
 	return 0;
 }
 
@@ -70,11 +77,32 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
 int 
 cDirectory::CreateCMakeListFile()
 {
+	std::ofstream cMakeListsFile;
+	cMakeListsFile.open( mCMakeFile->Path(), std::ios::in | std::ios::trunc );
+
+	cMakeListsFile << "# ------CMakesLists file generated with CMLManager ----- \n\n";
+
+	// Writes directories first
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
-		if( mContent[ i ]->IsCompiled() )
-			mContent[ i ]->PrintInCMakeListFile();
+		if( mContent[ i ]->IsDirectory() )
+			mContent[ i ]->PrintInCMakeListFile( cMakeListsFile );
 	}
+
+	cMakeListsFile << "\n\n";
+
+	// Writes other files a l'arrache for now
+	for( unsigned int i = 0; i < mContent.size(); ++i )
+	{
+		if( !mContent[ i ]->IsDirectory() )
+			mContent[ i ]->PrintInCMakeListFile( cMakeListsFile );
+	}
+
+	cMakeListsFile << "\n\n";
+	cMakeListsFile << "SET SOURCE_FILES( ${ SOURCE_FILES } + )\n";
+	cMakeListsFile << "SET HEADERS_FILES( ${ HEADERS_FILES } + )\n"; 
+
+	cMakeListsFile.close();
 	return 0;
 }
 

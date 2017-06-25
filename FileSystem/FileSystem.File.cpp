@@ -1,8 +1,11 @@
 #include "FileSystem.File.h"
 
+#include <locale>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <string.h>
-#include <locale>
+
 
 
 
@@ -90,8 +93,12 @@ cFile::IsDirectory() const
 
 
 int 
-cFile::PrintInCMakeListFile() const
+cFile::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 {
+	if( !IsCompiled() )
+		iOFStream << "# ";
+
+	iOFStream << "SET INCLUDE( " << Path() << " )\n";
 	return 0;
 }
 

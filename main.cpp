@@ -15,6 +15,8 @@ main( int argc, char** argv )
 		
 	mainDir->DebugPrint(); 
 
+	mainDir->CreateCMakeListFile();
+
 	delete  mainDir;
 
     return 0;

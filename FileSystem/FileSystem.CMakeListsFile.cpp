@@ -1,7 +1,7 @@
 #include "FileSystem.CMakeListsFile.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace nFileSystem
 {
@@ -60,7 +60,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
 
 
 int
-cCMakeListsFile::PrintInCMakeListFile() const
+cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 {
 	return  0;
 }

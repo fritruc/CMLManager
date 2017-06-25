@@ -13,19 +13,19 @@ class cCMakeListsFile :
 
 
 public:
-	/**@Name Construction/Destruction */
-	//@{
+/**@Name Construction/Destruction */
+//@{
 	virtual  ~cCMakeListsFile();
 	cCMakeListsFile( const std::string & iPath );
-	//@}
+//@}
 
 public:
-	/**@Name FileBase Overrides */
-	//@{
+/**@Name FileBase Overrides */
+//@{
 	virtual  bool	IsDirectory()  const;
 
-	virtual  int	PrintInCMakeListFile() const;
-	//@}
+	virtual  int	PrintInCMakeListFile( std::ofstream& iOFStream ) const;
+//@}
 
 public:
 /**@Name CMakeLists reading */
@@ -34,10 +34,10 @@ public:
 //@}
 
 public:
-	/**@Name Debug */
-	//@{
+/**@Name Debug */
+//@{
 	virtual  int  DebugPrint() const;
-	//@}
+//@}
 
 };
 

@@ -34,7 +34,7 @@ public:
 public:
 /**@Name CMakeLists */
 //@{
-	virtual  int		PrintInCMakeListFile() const = 0;
+	virtual  int		PrintInCMakeListFile( std::ofstream& iOFStream ) const = 0;
 //@} 
 
 public:

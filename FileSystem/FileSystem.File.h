@@ -44,7 +44,7 @@ public:
 //@{
 	virtual  bool	IsDirectory()  const;
 
-	virtual  int	PrintInCMakeListFile() const;
+	virtual  int	PrintInCMakeListFile( std::ofstream& iOFStream ) const;
 //@}
 
 public:
