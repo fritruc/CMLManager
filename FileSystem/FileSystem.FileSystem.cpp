@@ -75,7 +75,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 				std::size_t foundDot = fileName.find_last_of( '.' );
 				if( foundDot != std::string::npos )
 				{
-					std::string fileExtention = fileName.substr( foundDot + 1 );
+					std::string fileExtention = fileName.substr( foundDot + 1 );;
 					if( !strcmp( fileExtention.c_str(), "cpp" )
 						|| !strcmp( fileExtention.c_str(), "c" )
 						|| !strcmp( fileExtention.c_str(), "mm" )
