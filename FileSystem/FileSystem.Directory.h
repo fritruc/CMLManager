@@ -2,9 +2,11 @@
 
 #include "FileSystem.FileBase.h"
 
+#include "FileSystem.File.h"
+
 #include <vector>
 
-namespace nFileSystem { class cCMakeListsFile; }
+namespace nFileSystem { class cCMakeListsFile; } 
 
 namespace nFileSystem
 {
@@ -35,6 +37,8 @@ public:
 //@{
 	int  AddContent( cFileBase* iFile );
 	int  SetMakeFile( cCMakeListsFile* iCMakeFile );
+
+	bool IsThereOSSpecificFileInContent( cFile::eOS iOS ) const;
 //@}
 
 public:
@@ -46,7 +50,7 @@ public:
 public:
 /**@Name CMakeList */
 //@{
-	int  CreateCMakeListFile();
+	int  CreateCMakeListFile( bool iRecursive );
 //@}
 
 public:

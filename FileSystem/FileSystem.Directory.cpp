@@ -1,7 +1,6 @@
 #include "FileSystem.Directory.h"
 
-#include "FileSystem.CMakeListsFile.h"
-#include "FileSystem.File.h"
+#include "FileSystem.CMakeListsFile.h" 
 
 #include <fstream>
 #include <iostream>
@@ -58,7 +57,21 @@ cDirectory::SetMakeFile( cCMakeListsFile* iCMakeFile )
 {
 	mCMakeFile = iCMakeFile;
 	return  0;
-} 
+}
+
+
+bool 
+cDirectory::IsThereOSSpecificFileInContent( cFile::eOS iOS ) const
+{
+	for( unsigned int i = 0; i < mContent.size(); ++i )
+	{
+		cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+		if( file && file->FileOS() == iOS )
+			return  true;
+	} 
+
+	return false;
+}
 
 
 int 
@@ -75,10 +88,15 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
 
 
 int 
-cDirectory::CreateCMakeListFile()
+cDirectory::CreateCMakeListFile( bool iRecursive )
 {
+	// If directory is empty, we don't create a CMakeLists file
+	if( mContent.size() == 0 )
+		return  0;
+
+	//Opening or creating CMakeLists file in the directory
 	std::ofstream cMakeListsFile;
-	cMakeListsFile.open( mCMakeFile->Path(), std::ios::in | std::ios::trunc );
+	cMakeListsFile.open( Path() + "/CMakeLists.txt", std::ios::in | std::ios::trunc );
 
 	cMakeListsFile << "# ------CMakesLists file generated with CMLManager ----- \n\n";
 
@@ -87,15 +105,81 @@ cDirectory::CreateCMakeListFile()
 	{
 		if( mContent[ i ]->IsDirectory() )
 			mContent[ i ]->PrintInCMakeListFile( cMakeListsFile );
+		else
+			break; //Assuming dir are given first and files then
 	}
 
 	cMakeListsFile << "\n\n";
 
-	// Writes other files a l'arrache for now
+	// Writes generic sources first
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
 		if( !mContent[ i ]->IsDirectory() )
-			mContent[ i ]->PrintInCMakeListFile( cMakeListsFile );
+		{
+			cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+			if( file && file->FileType() == cFile::eType::kSource && file->FileOS() == cFile::eOS::kNone )
+				file->PrintInCMakeListFile( cMakeListsFile );
+		} 
+	}
+
+	cMakeListsFile << "\n\n";
+
+	// Writes generic headers then
+	for( unsigned int i = 0; i < mContent.size(); ++i )
+	{
+		if( !mContent[ i ]->IsDirectory() )
+		{
+			cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+			if( file && file->FileType() == cFile::eType::kHeader && file->FileOS() == cFile::eOS::kNone )
+				file->PrintInCMakeListFile( cMakeListsFile );
+		}
+	}
+
+	cMakeListsFile << "\n\n";
+
+	if( IsThereOSSpecificFileInContent( cFile::eOS::kLinux ) )
+	{
+		cMakeListsFile << "IFDEF( LINUX )\n";
+		for( unsigned int i = 0; i < mContent.size(); ++i )
+		{
+			if( !mContent[ i ]->IsDirectory() )
+			{
+				cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+				if( file && file->FileOS() == cFile::eOS::kLinux )
+					file->PrintInCMakeListFile( cMakeListsFile );
+			}
+		}
+		cMakeListsFile << "ENDIF\n\n";
+	}
+
+	if( IsThereOSSpecificFileInContent( cFile::eOS::kMacosx ) )
+	{
+		cMakeListsFile << "IFDEF( MACOSX )\n";
+		for( unsigned int i = 0; i < mContent.size(); ++i )
+		{
+			if( !mContent[ i ]->IsDirectory() )
+			{
+				cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+				if( file && file->FileOS() == cFile::eOS::kMacosx )
+					file->PrintInCMakeListFile( cMakeListsFile );
+			}
+		}
+		cMakeListsFile << "ENDIF\n\n";
+	}
+
+	if( IsThereOSSpecificFileInContent( cFile::eOS::kWindows ) )
+	{
+		cMakeListsFile << "IFDEF( WINDOWS )\n";
+		for( unsigned int i = 0; i < mContent.size(); ++i )
+		{
+			if( !mContent[ i ]->IsDirectory() )
+			{
+				cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+				if( file && file->FileOS() == cFile::eOS::kWindows )
+					file->PrintInCMakeListFile( cMakeListsFile );
+			}
+		}
+		cMakeListsFile << "ENDIF\n\n";
 	}
 
 	cMakeListsFile << "\n\n";
@@ -103,6 +187,18 @@ cDirectory::CreateCMakeListFile()
 	cMakeListsFile << "SET HEADERS_FILES( ${ HEADERS_FILES } + )\n"; 
 
 	cMakeListsFile.close();
+
+	if( iRecursive )
+	{
+		for( unsigned int i = 0; i < mContent.size(); ++i )
+		{
+			if( mContent[ i ]->IsDirectory() )
+				dynamic_cast< cDirectory* >( mContent[ i ] )->CreateCMakeListFile( iRecursive );
+			else
+				break; //Assuming dir are given first and files then
+		}
+	}
+
 	return 0;
 }
 

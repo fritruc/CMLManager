@@ -21,6 +21,14 @@ public:
 	};
 
 public:
+	enum eType
+	{
+		kOther = 0,
+		kSource,
+		kHeader
+	};
+
+public:
 /**@Name Construction/Destruction */
 //@{
 	virtual  ~cFile();
@@ -30,13 +38,15 @@ public:
 public:
 /**@Name Accessors/Modifiers */
 //@{
-	eOS  FileOS() const; 
+	eOS		FileOS() const;
+	eType	FileType() const;
 //@}
 
 public:
 /**@Name Computing methods */
 //@{
 	int  ReadOS();
+	int  ReadType();
 //@}
 
 public:
@@ -54,8 +64,8 @@ public:
 //@}
 
 private:
-	eOS mFileOS;
-
+	eOS		mFileOS;
+	eType	mFileType;
 };
 
 

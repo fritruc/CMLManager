@@ -6,3 +6,5 @@
 /bin/x64/Debug 
 /CMLManager.vcxproj.filters
 /CMLManager.vcxproj.user
+/bin/x64/Release
+/obj/x64/Release

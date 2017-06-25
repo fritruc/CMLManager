@@ -18,9 +18,12 @@ cFile::~cFile()
 }
 
 nFileSystem::cFile::cFile( const std::string & iPath ) :
-	tSuperClass( iPath )
+	tSuperClass( iPath ),
+	mFileOS( kNone ),
+	mFileType( kOther )
 {
 	ReadOS();
+	ReadType();
 }
 
 
@@ -28,6 +31,13 @@ cFile::eOS
 cFile::FileOS() const
 {
 	return  mFileOS;
+}
+
+
+cFile::eType
+cFile::FileType() const
+{
+	return  mFileType;
 }
 
 
@@ -44,7 +54,7 @@ cFile::ReadOS()
 	std::string os = name.substr( dashPos + 1 );
  
 	// This would be, just a - like File-
-	if( os.size() <= 1 )
+	if( os.size() <= 0 )
 		return  0;
 
 	// going to lower, so we can easily compare
@@ -85,6 +95,42 @@ cFile::ReadOS()
 }
 
 
+int 
+cFile::ReadType()
+{
+	std::string name = Name();
+	std::size_t dotPos = name.find_last_of( '.' );
+
+	// No . in the file name = no extension ?!
+	if( dotPos == std::string::npos )
+		return  -1;
+
+	std::string type = name.substr( dotPos + 1 );
+
+	// This would be, just a . like File.
+	if( type.size() <= 0 )
+		return  -1;
+
+	// going to lower, so we can easily compare
+	for( unsigned int i = 0; i < type.size(); ++i )
+		type[ i ] = std::tolower( type[ i ], std::locale() );
+
+	if( !strcmp( type.c_str(), "cpp" )
+		|| !strcmp( type.c_str(), "c" )
+		|| !strcmp( type.c_str(), "mm" ) )
+	{
+		mFileType = kSource;
+	}
+	else if( !strcmp( type.c_str(), "h" )
+		|| !strcmp( type.c_str(), "hpp" ) )
+	{
+		mFileType = kHeader;
+	}
+
+	return 0;
+}
+
+
 bool 
 cFile::IsDirectory() const
 {
@@ -98,7 +144,11 @@ cFile::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 	if( !IsCompiled() )
 		iOFStream << "# ";
 
-	iOFStream << "SET INCLUDE( " << Path() << " )\n";
+	if( mFileType == kSource )
+		iOFStream << "SET SOURCE_FILE( " << Path() << " )\n";
+	else if( mFileType == kHeader )
+		iOFStream << "SET HEADER_FILE( " << Path() << " )\n";
+
 	return 0;
 }
 
@@ -107,11 +157,24 @@ int
 cFile::DebugPrint() const
 {
 	printf( "File : %s", Name().c_str() );
+	printf( "%*c", 20 - Name().size(), ' ' );
 
 	if( IsCompiled() )
-		printf( " %*c", 20 - Name().size(), 'C' );
+		printf( "C" );
+	else
+		printf( " " );
+
 	if( IsNewFile() )
-		printf( "  N" );
+		printf( " N" );
+	else
+		printf( "  " );
+
+	if( mFileType == kSource )
+		printf( "   Source file " );
+	else if( mFileType == kHeader )
+		printf( "   Header file " );
+	else
+		printf( "   Other file " );
 
 	switch( mFileOS )
 	{

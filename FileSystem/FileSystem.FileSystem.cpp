@@ -6,6 +6,7 @@
 #include "FileSystem.File.h"
 #include "FileSystem.FileBase.h"
 
+#include <locale>
 #include <string.h>
 
 #include <dirent.h>
@@ -76,6 +77,10 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 				if( foundDot != std::string::npos )
 				{
 					std::string fileExtention = fileName.substr( foundDot + 1 );
+					//Going lower case for every character 
+					for( unsigned int i = 0; i < fileExtention.size(); ++i )
+						fileExtention[ i ] = std::tolower( fileExtention[ i ], std::locale() );
+
 					if( !strcmp( fileExtention.c_str(), "cpp" )
 						|| !strcmp( fileExtention.c_str(), "c" )
 						|| !strcmp( fileExtention.c_str(), "mm" )

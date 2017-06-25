@@ -13,6 +13,7 @@ cFileBase::~cFileBase()
 cFileBase::cFileBase( const std::string & iPath ) :
 	mPath( iPath ),
 	mIsCompiled( true ),
+	mIsNewFile( true ),
 	mDepth( 0 )
 {
 	mName = iPath.substr( iPath.find_last_of( '/' ) + 1 );
