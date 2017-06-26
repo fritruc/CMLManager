@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileSystem.FileBase.h"
+#include "FileSystem.FileOSSpecific.h"
 
 #include "FileSystem.File.h"
 
@@ -12,59 +12,65 @@ namespace nFileSystem
 {
 
 class cDirectory :
-	public cFileBase
+    public cFileOSSpecific
 {
-	typedef cFileBase	tSuperClass;
-	typedef cDirectory  tSelfClass;
+    typedef cFileOSSpecific tSuperClass;
+    typedef cDirectory      tSelfClass;
 
 public:
 /**@Name Construction/Destruction */
 //@{
-	virtual  ~cDirectory();
-	cDirectory( const std::string & iPath );
+    virtual  ~cDirectory();
+    cDirectory( const std::string & iPath );
 //@}
 
 public:
 /**@Name FileBase Overrides */
 //@{
-	virtual  bool	IsDirectory()  const;
+    virtual  bool   IsDirectory()  const;
 
-	virtual  int	PrintInCMakeListFile( std::ofstream& iOFStream ) const;
+    virtual  int    PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const;
+//@}
+
+public:
+/**@Name cFileOSSpecific Overrides */
+//@{
+    virtual  int  ReadOS();
 //@}
 
 public:
 /**@Name Accessors/Modifiers */
 //@{
-	int  AddContent( cFileBase* iFile );
-	int  SetMakeFile( cCMakeListsFile* iCMakeFile );
+    int  AddContent( cFileBase* iFile );
+    int  SetMakeFile( cCMakeListsFile* iCMakeFile );
 
-	bool IsThereOSSpecificFileInContent( cFile::eOS iOS ) const;
+    bool IsThereOSSpecificFileInContent( cFile::eOS iOS ) const;
 //@}
 
 public:
 /**@Name Content management */
 //@{
-	int  ReadAllPropertiesFromCMakeListsFile();
+    int  ReadAllPropertiesFromCMakeListsFile();
 //@}
 
 public:
 /**@Name CMakeList */
 //@{
-	int  CreateCMakeListFile( bool iRecursive );
-	int  WriteSetSourcePart( std::ofstream& iOFStream );
-	int  WriteSetHeaderPart( std::ofstream& iOFStream );
+    int  CreateCMakeListFile( bool iRecursive );
+    int  WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs );
+    int  WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs );
 //@}
 
 public:
 /**@Name Debug */
 //@{
-	int  DebugPrint() const;
-	int  DebugPrintContent() const;
+    int  DebugPrint() const;
+    int  DebugPrintContent() const;
 //@}
 
 private:
-	std::vector< cFileBase* >	mContent;
-	cCMakeListsFile*			mCMakeFile;
+    std::vector< cFileBase* >   mContent;
+    cCMakeListsFile*            mCMakeFile;
 };
 
 

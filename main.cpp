@@ -8,16 +8,16 @@
 int 
 main( int argc, char** argv )
 {
-	::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/projects/CMLManager/MakeList" );
-	
-	if( !mainDir )
-		return  0;
-		
-	mainDir->DebugPrint(); 
+    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/projects/CMLManager/MakeList" );
+    
+    if( !mainDir )
+        return  0;
+        
+    mainDir->DebugPrint(); 
 
-	mainDir->CreateCMakeListFile( true );
+    mainDir->CreateCMakeListFile( true );
 
-	delete  mainDir;
+    delete  mainDir;
 
     return 0;
 }
