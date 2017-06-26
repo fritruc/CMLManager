@@ -1,6 +1,6 @@
 #include "FileSystem.Directory.h"
 
-#include "FileSystem.CMakeListsFile.h" 
+#include "FileSystem.CMakeListsFile.h"
 
 #include <fstream>
 #include <iostream>
@@ -32,7 +32,7 @@ cDirectory::IsDirectory() const
 }
 
 
-int 
+int
 cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 {
 	if( !IsCompiled() )
@@ -43,7 +43,7 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream ) const
 }
 
 
-int 
+int
 cDirectory::AddContent( cFileBase* iFile )
 {
 	iFile->Depth( Depth() + 1 );
@@ -60,7 +60,7 @@ cDirectory::SetMakeFile( cCMakeListsFile* iCMakeFile )
 }
 
 
-bool 
+bool
 cDirectory::IsThereOSSpecificFileInContent( cFile::eOS iOS ) const
 {
 	for( unsigned int i = 0; i < mContent.size(); ++i )
@@ -68,13 +68,13 @@ cDirectory::IsThereOSSpecificFileInContent( cFile::eOS iOS ) const
 		cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
 		if( file && file->FileOS() == iOS )
 			return  true;
-	} 
+	}
 
 	return false;
 }
 
 
-int 
+int
 cDirectory::ReadAllPropertiesFromCMakeListsFile()
 {
 	if( !mCMakeFile )
@@ -87,7 +87,7 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
 }
 
 
-int 
+int
 cDirectory::CreateCMakeListFile( bool iRecursive )
 {
 	// If directory is empty, we don't create a CMakeLists file
@@ -110,8 +110,13 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 	}
 
 	cMakeListsFile << "\n\n";
+	cMakeListsFile << "#-----------------------------FILES----------------------\n";
+	cMakeListsFile << "\n\n";
+
+	cMakeListsFile << "FILE( RELATIVE_PATH RELATIVE_DIR ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )\n\n";
 
 	// Writes generic sources first
+	WriteSetSourcePart( cMakeListsFile );
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
 		if( !mContent[ i ]->IsDirectory() )
@@ -119,12 +124,12 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 			cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
 			if( file && file->FileType() == cFile::eType::kSource && file->FileOS() == cFile::eOS::kNone )
 				file->PrintInCMakeListFile( cMakeListsFile );
-		} 
+		}
 	}
-
-	cMakeListsFile << "\n\n";
+	cMakeListsFile << ")\n\n";
 
 	// Writes generic headers then
+	WriteSetHeaderPart( cMakeListsFile );
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
 		if( !mContent[ i ]->IsDirectory() )
@@ -134,12 +139,14 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 				file->PrintInCMakeListFile( cMakeListsFile );
 		}
 	}
+	cMakeListsFile << ")\n\n";
 
-	cMakeListsFile << "\n\n";
 
+	//TODO: split headers and sources !
 	if( IsThereOSSpecificFileInContent( cFile::eOS::kLinux ) )
 	{
-		cMakeListsFile << "IFDEF( LINUX )\n";
+		cMakeListsFile << "IF( LINUX )\n";
+		WriteSetSourcePart( cMakeListsFile );
 		for( unsigned int i = 0; i < mContent.size(); ++i )
 		{
 			if( !mContent[ i ]->IsDirectory() )
@@ -149,12 +156,14 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 					file->PrintInCMakeListFile( cMakeListsFile );
 			}
 		}
-		cMakeListsFile << "ENDIF\n\n";
+		cMakeListsFile << ")\n";
+		cMakeListsFile << "ENDIF( LINUX )\n\n";
 	}
 
 	if( IsThereOSSpecificFileInContent( cFile::eOS::kMacosx ) )
 	{
-		cMakeListsFile << "IFDEF( MACOSX )\n";
+		cMakeListsFile << "IF( MACOSX )\n";
+		WriteSetSourcePart( cMakeListsFile );
 		for( unsigned int i = 0; i < mContent.size(); ++i )
 		{
 			if( !mContent[ i ]->IsDirectory() )
@@ -164,12 +173,14 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 					file->PrintInCMakeListFile( cMakeListsFile );
 			}
 		}
-		cMakeListsFile << "ENDIF\n\n";
+		cMakeListsFile << ")\n";
+		cMakeListsFile << "ENDIF( MACOSX )\n\n";
 	}
 
 	if( IsThereOSSpecificFileInContent( cFile::eOS::kWindows ) )
 	{
-		cMakeListsFile << "IFDEF( WINDOWS )\n";
+		cMakeListsFile << "IF( WINDOWS )\n";
+		WriteSetSourcePart( cMakeListsFile );
 		for( unsigned int i = 0; i < mContent.size(); ++i )
 		{
 			if( !mContent[ i ]->IsDirectory() )
@@ -179,12 +190,27 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 					file->PrintInCMakeListFile( cMakeListsFile );
 			}
 		}
-		cMakeListsFile << "ENDIF\n\n";
+		cMakeListsFile << ")\n";
+		cMakeListsFile << "ENDIF( WINDOWS )\n\n";
 	}
 
 	cMakeListsFile << "\n\n";
-	cMakeListsFile << "SET SOURCE_FILES( ${ SOURCE_FILES } + )\n";
-	cMakeListsFile << "SET HEADERS_FILES( ${ HEADERS_FILES } + )\n"; 
+	cMakeListsFile << "#Set in parent scope";
+	cMakeListsFile << "\n\n";
+
+	WriteSetSourcePart( cMakeListsFile );
+	cMakeListsFile << "    PARENT_SCOPE\n";
+	cMakeListsFile << ")\n";
+
+	WriteSetHeaderPart( cMakeListsFile );
+	cMakeListsFile << "    PARENT_SCOPE\n";
+	cMakeListsFile << ")\n";
+
+	cMakeListsFile << "    INCLUDE_DIRECTORIES\n";
+	cMakeListsFile << "    ${INCLUDE_DIRECTORIES}\n";
+	cMakeListsFile << "    ${CMAKE_CURRENT_SOURCE_DIR}\n";
+	cMakeListsFile << "    PARENT_SCOPE\n";
+	cMakeListsFile << ")\n";
 
 	cMakeListsFile.close();
 
@@ -199,11 +225,46 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 		}
 	}
 
+	/* File input naming
+	${RELATIVE_DIR}/WindowingSystem.Application.h
+	*/
+
+	/* Target naming
+
+	IF( ${CMAKE_BUILD_TYPE} STREQUAL "TVPDB" )
+		ADD_SUBDIRECTORY( TVPDB )
+	ELSE()
+		ADD_SUBDIRECTORY( TVPA )
+	ENDIF()
+	*/
+
 	return 0;
 }
 
 
-int 
+int
+cDirectory::WriteSetSourcePart( std::ofstream& iOFStream )
+{
+	iOFStream << "SET(\n";
+	iOFStream << "    HEADER_FILES\n";
+	iOFStream << "    ${HEADER_FILES}\n";
+
+	return  0;
+}
+
+
+int
+cDirectory::WriteSetHeaderPart( std::ofstream& iOFStream )
+{
+	iOFStream << "SET(\n";
+	iOFStream << "    SRC_FILES\n";
+	iOFStream << "    ${SRC_FILES}\n";
+
+	return  0;
+}
+
+
+int
 cDirectory::DebugPrint() const
 {
 	DebugPrintContent();
@@ -212,7 +273,7 @@ cDirectory::DebugPrint() const
 }
 
 
-int 
+int
 cDirectory::DebugPrintContent() const
 {
 	printf( "Directory : %s    ", Name().c_str() );
@@ -230,13 +291,13 @@ cDirectory::DebugPrintContent() const
 	for( unsigned int i = 0; i < mContent.size(); ++i )
 	{
 		printf( "%s", tabs.c_str() );
-		mContent[ i ]->DebugPrint(); 
+		mContent[ i ]->DebugPrint();
 	}
 
 	if( mCMakeFile )
 	{
 		printf( "%s", tabs.c_str() );
-		mCMakeFile->DebugPrint(); 
+		mCMakeFile->DebugPrint();
 	}
 
 	return 0;

@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace nFileSystem { class cCMakeListsFile; } 
+namespace nFileSystem { class cCMakeListsFile; }
 
 namespace nFileSystem
 {
@@ -51,6 +51,8 @@ public:
 /**@Name CMakeList */
 //@{
 	int  CreateCMakeListFile( bool iRecursive );
+	int  WriteSetSourcePart( std::ofstream& iOFStream );
+	int  WriteSetHeaderPart( std::ofstream& iOFStream );
 //@}
 
 public:
