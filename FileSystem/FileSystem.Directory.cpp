@@ -138,7 +138,7 @@ cDirectory::SetMakeFile( cCMakeListsFile* iCMakeFile )
 
 
 bool
-cDirectory::IsThereOSSpecificFileInContent( cFile::eOS iOS ) const
+cDirectory::IsThereOSSpecificFileInContent( cFileOSSpecific::eOS iOS ) const
 {
     for( unsigned int i = 0; i < mContent.size(); ++i )
     {
@@ -202,7 +202,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
         if( !mContent[ i ]->IsDirectory() )
         {
             cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
-            if( file && file->FileType() == cFile::eType::kSource && file->FileOS() == cFile::eOS::kNone )
+            if( file && file->FileType() == cFile::eType::kSource && file->FileOS() == cFileOSSpecific::eOS::kNone )
                 file->PrintInCMakeListFile( cMakeListsFile, 1 );
         }
     }
@@ -215,7 +215,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
         if( !mContent[ i ]->IsDirectory() )
         {
             cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
-            if( file && file->FileType() == cFile::eType::kHeader && file->FileOS() == cFile::eOS::kNone )
+            if( file && file->FileType() == cFile::eType::kHeader && file->FileOS() == cFileOSSpecific::eOS::kNone )
                 file->PrintInCMakeListFile( cMakeListsFile, 1 );
         }
     }
@@ -224,55 +224,101 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
     cMakeListsFile << "\n\n";
 
 
-    //TODO: split headers and sources !
-    if( IsThereOSSpecificFileInContent( cFile::eOS::kLinux ) )
+    if( IsThereOSSpecificFileInContent( cFileOSSpecific::eOS::kLinux ) )
     {
         cMakeListsFile << "IF( LINUX )\n";
+
+        //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
         for( unsigned int i = 0; i < mContent.size(); ++i )
         {
             if( !mContent[ i ]->IsDirectory() )
             {
                 cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
-                if( file && file->FileOS() == cFile::eOS::kLinux )
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kLinux && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
         }
-        cMakeListsFile << ")\n";
+        cMakeListsFile << "    )\n\n";
+
+        //Headers
+        WriteSetHeaderPart( cMakeListsFile, 1 );
+        for( unsigned int i = 0; i < mContent.size(); ++i )
+        {
+            if( !mContent[ i ]->IsDirectory() )
+            {
+                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kLinux && file->FileType() == cFile::eType::kHeader )
+                    file->PrintInCMakeListFile( cMakeListsFile, 2 );
+            }
+        }
+        cMakeListsFile << "    )\n";
+
         cMakeListsFile << "ENDIF( LINUX )\n\n";
     }
 
-    if( IsThereOSSpecificFileInContent( cFile::eOS::kMacosx ) )
+    if( IsThereOSSpecificFileInContent( cFileOSSpecific::eOS::kMacosx ) )
     {
         cMakeListsFile << "IF( MACOSX )\n";
+
+        //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
         for( unsigned int i = 0; i < mContent.size(); ++i )
         {
             if( !mContent[ i ]->IsDirectory() )
             {
                 cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
-                if( file && file->FileOS() == cFile::eOS::kMacosx )
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kMacosx && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
         }
-        cMakeListsFile << ")\n";
+        cMakeListsFile << "    )\n\n";
+
+        //Headers
+        WriteSetHeaderPart( cMakeListsFile, 1 );
+        for( unsigned int i = 0; i < mContent.size(); ++i )
+        {
+            if( !mContent[ i ]->IsDirectory() )
+            {
+                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kMacosx && file->FileType() == cFile::eType::kHeader )
+                    file->PrintInCMakeListFile( cMakeListsFile, 2 );
+            }
+        }
+        cMakeListsFile << "    )\n";
+
         cMakeListsFile << "ENDIF( MACOSX )\n\n";
     }
 
-    if( IsThereOSSpecificFileInContent( cFile::eOS::kWindows ) )
+    if( IsThereOSSpecificFileInContent( cFileOSSpecific::eOS::kWindows ) )
     {
         cMakeListsFile << "IF( WINDOWS )\n";
+
+        //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
         for( unsigned int i = 0; i < mContent.size(); ++i )
         {
             if( !mContent[ i ]->IsDirectory() )
             {
                 cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
-                if( file && file->FileOS() == cFile::eOS::kWindows )
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kWindows && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
         }
-        cMakeListsFile << ")\n";
+        cMakeListsFile << "    )\n\n";
+
+        //Headers
+        WriteSetHeaderPart( cMakeListsFile, 1 );
+        for( unsigned int i = 0; i < mContent.size(); ++i )
+        {
+            if( !mContent[ i ]->IsDirectory() )
+            {
+                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                if( file && file->FileOS() == cFileOSSpecific::eOS::kWindows && file->FileType() == cFile::eType::kHeader )
+                    file->PrintInCMakeListFile( cMakeListsFile, 2 );
+            }
+        }
+        cMakeListsFile << "    )\n";
         cMakeListsFile << "ENDIF( WINDOWS )\n\n";
     }
 
