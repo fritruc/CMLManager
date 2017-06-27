@@ -59,6 +59,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 
         if( S_ISDIR( fileStat.st_mode ) )
         {
+            //TODO: dismiss folder starting with . : .vscode, .svn
             ::nFileSystem::cDirectory* directory = ReadDirectory( filePath );
             mainDirectory->AddContent( directory );
         }
@@ -77,7 +78,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
                 if( foundDot != std::string::npos )
                 {
                     std::string fileExtention = fileName.substr( foundDot + 1 );
-                    //Going lower case for every character 
+                    //Going lower case for every character
                     for( unsigned int i = 0; i < fileExtention.size(); ++i )
                         fileExtention[ i ] = std::tolower( fileExtention[ i ], std::locale() );
 

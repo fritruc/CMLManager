@@ -5,17 +5,17 @@
 #include <cstdio>
 
 
-int 
+int
 main( int argc, char** argv )
 {
-    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/projects/CMLManager/MakeList" );
-    
+    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/work/trunk/tvplibs10" );
+
     if( !mainDir )
         return  0;
-        
-    mainDir->DebugPrint(); 
 
-    mainDir->CreateCMakeListFile( true );
+    mainDir->DebugPrint();
+
+    // mainDir->CreateCMakeListFile( true );
 
     delete  mainDir;
 

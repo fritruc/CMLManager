@@ -76,7 +76,7 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
     iOFStream << tabsSUBDORECTORY << "SUBDIRECTORY( " << Name() << " )\n";
 
     if( FileOS() != kNone )
-    { 
+    {
         iOFStream << tabs << "ENDIF( " + os + " )\n\n";
     }
 
@@ -84,10 +84,10 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
 }
 
 
-int 
+int
 cDirectory::ReadOS()
 {
-    std::string name = Name();   
+    std::string name = Name();
 
     if( name.size() <= 0 )
         return  0;
@@ -95,6 +95,8 @@ cDirectory::ReadOS()
     // going to lower, so we can easily compare
     for( unsigned int i = 0; i < name.size(); ++i )
         name[ i ] = std::tolower( name[ i ], std::locale() );
+
+    //TODO: If a dir is OSSpecific, all files inside are also os specific
 
     if( !strcmp( name.c_str(), "linux" ) )
     {
@@ -106,7 +108,7 @@ cDirectory::ReadOS()
     {
         FileOS( kMacosx );
         return  0;
-    } 
+    }
 
     if( !strcmp( name.c_str(), "windows" ) || !strcmp( name.c_str(), "win32" ) || !strcmp( name.c_str(), "win64" ) )
     {

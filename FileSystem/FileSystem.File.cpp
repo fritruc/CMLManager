@@ -16,22 +16,22 @@ cFile::~cFile()
 }
 
 nFileSystem::cFile::cFile( const std::string & iPath ) :
-    tSuperClass( iPath ), 
+    tSuperClass( iPath ),
     mFileType( kOther )
-{ 
+{
     ReadType();
     ReadOS();
-} 
+}
 
 
 cFile::eType
 cFile::FileType() const
 {
     return  mFileType;
-} 
+}
 
 
-int 
+int
 cFile::ReadType()
 {
     std::string name = Name();
@@ -67,14 +67,14 @@ cFile::ReadType()
 }
 
 
-bool 
+bool
 cFile::IsDirectory() const
 {
     return  false;
 }
 
 
-int 
+int
 cFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
     std::string tabs;
@@ -109,6 +109,10 @@ cFile::ReadOS()
     // going to lower, so we can easily compare
     for( unsigned int i = 0; i < os.size(); ++i )
         os[ i ] = std::tolower( os[ i ], std::locale() );
+
+    //TODO : Add files called Cocoa.h for example
+    //TODO : Add extension watch : .mm -> Macosx file
+    //TODO: SoundSequence-Linux-alsa <-- last dash doesn't work here..
 
     std::size_t found = os.find( "linux" );
     if( found != std::string::npos )
