@@ -34,6 +34,18 @@ cDirectory::IsDirectory() const
 }
 
 
+int 
+cDirectory::IncDepth()
+{
+    tSuperClass::IncDepth();
+
+    for( unsigned int i = 0; i < mContent.size(); ++i )
+        mContent[ i ]->IncDepth();
+    
+    return 0;
+}
+
+
 int
 cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
@@ -133,7 +145,7 @@ cDirectory::AddContent( cFileBase* iFile )
     if( fileOSSpecific && FileOS() != kNone )
         fileOSSpecific->FileOS( FileOS() );
 
-    iFile->Depth( Depth() + 1 );
+    iFile->IncDepth();
     mContent.push_back( iFile );
     return 0;
 }
@@ -418,28 +430,37 @@ cDirectory::DebugPrint() const
 int
 cDirectory::DebugPrintContent() const
 {
-    printf( "Directory : %s    ", Name().c_str() );
+    printf( "Directory : %s", Name().c_str() );
+    printf( "%*c", 95 - Name().size() - Depth() * 6, ' ' );
 
     if( IsCompiled() )
-        printf( " C" );
+        printf( "C  " );
+    else
+        printf( "NC " );
+
     if( IsNewFile() )
-        printf( " N" );
+        printf( "  N" );
+    else
+        printf( "   " );
+
+    // Skip the file type
+    printf( "               " );
 
     switch( FileOS() )
     {
         case kLinux:
         {
-            printf( " -- Linux Dir" );
+            printf( "   -- Linux Dir" );
             break;
         }
         case kMacosx:
         {
-            printf( " -- MacOSX Dir" );
+            printf( "   -- MacOSX Dir" );
             break;
         }
         case kWindows:
         {
-            printf( " -- Windows Dir" );
+            printf( "   -- Windows Dir" );
             break;
         }
         default:

@@ -26,8 +26,7 @@ cCMakeListsFile::IsDirectory() const
 int
 cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
 {
-    std::ifstream file;
-    file.open( Path(), std::ios::out ); 
+    std::ifstream file( Path() ); 
 
     std::string fileLine;
     bool isCompiled = true;

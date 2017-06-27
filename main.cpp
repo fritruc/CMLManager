@@ -3,22 +3,41 @@
 #include "FileSystem/FileSystem.FileSystem.h"
 
 #include <cstdio>
+#include <iostream>
 
 
 int
 main( int argc, char** argv )
 {
-    //::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/work/trunk/tvplibs10" );
-    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/projects/CMLManager/MakeList" );
+    ::nFileSystem::cFileSystem* fileSystem = new ::nFileSystem::cFileSystem();
 
-    if( !mainDir )
-        return  0;
+    if( !fileSystem )
+        return  1;
 
-    mainDir->DebugPrint();
+    for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
+    {
+        ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( fileSystem->FavoritePath( i ) );
 
-    // mainDir->CreateCMakeListFile( true );
+        if( !mainDir )
+            return  0;
 
-    delete  mainDir;
+        mainDir->DebugPrint();
+
+        char input;
+
+        std::cout << "Generate CMakeLists ? (y/n)\n";
+        std::cin >> input;
+
+        if( input == 'y' || input == 'Y' )
+        {
+            std::cout << "Generating CMakeLists ...\n";
+            mainDir->CreateCMakeListFile( true );
+            std::cout << "Done\n";
+        }
+
+        delete  mainDir;
+    }
+    delete  fileSystem;
 
     return 0;
 }

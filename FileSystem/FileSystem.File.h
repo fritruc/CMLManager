@@ -17,7 +17,7 @@ public:
         kOther = 0,
         kSource,
         kHeader
-    };
+    }; 
 
 public:
 /**@Name Construction/Destruction */
@@ -50,7 +50,7 @@ public:
 /**@Name cFileOSSpecific Overrides */
 //@{
     virtual  int  ReadOS();
-//@}
+//@} 
 
 public:
 /**@Name Debug */
@@ -59,7 +59,9 @@ public:
 //@}
 
 private: 
-    eType   mFileType;
+    int         mFile; 
+
+    eType       mFileType;
 };
 
 

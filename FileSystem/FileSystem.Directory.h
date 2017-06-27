@@ -28,6 +28,7 @@ public:
 /**@Name FileBase Overrides */
 //@{
     virtual  bool   IsDirectory()  const;
+    virtual  int    IncDepth();
 
     virtual  int    PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const;
 //@}

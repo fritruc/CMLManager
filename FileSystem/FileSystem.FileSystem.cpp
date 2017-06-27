@@ -7,6 +7,7 @@
 #include "FileSystem.FileBase.h"
 
 #include <locale>
+#include <fstream>
 #include <string.h>
 
 #include <dirent.h>
@@ -23,6 +24,24 @@ cFileSystem::~cFileSystem()
 
 cFileSystem::cFileSystem()
 {
+    ReadOptions();
+}
+
+
+const std::string
+cFileSystem::FavoritePath( unsigned int iPath ) const
+{
+    if( iPath >= mFavoritePaths.size() )
+        return  "";
+
+    return  mFavoritePaths[ iPath ];
+}
+
+
+unsigned int 
+cFileSystem::FavoriteCount() const
+{
+    return  mFavoritePaths.size();
 }
 
 
@@ -102,6 +121,36 @@ cFileSystem::ReadDirectory( const std::string& iPath )
     mainDirectory->ReadAllPropertiesFromCMakeListsFile();
 
     return  mainDirectory;
+}
+
+
+int 
+cFileSystem::ReadOptions()
+{
+    cFile* optionFile = new cFile( "Options/option.txt" );
+    if( !optionFile )
+        return  1;
+
+    std::ifstream optionStream( optionFile->Path() );
+    if( optionStream.is_open() )
+    {
+        std::string path;
+        while( getline( optionStream, path ) )
+        {
+            mFavoritePaths.push_back( path );
+        }
+    }
+    else
+    {
+        printf( "Stream for option not opened\n" );
+        return  1;
+    }
+
+    printf( "Option successfully read : \n" );
+    for( unsigned int i = 0; i < mFavoritePaths.size() ; ++i )
+        printf( "%s\n", mFavoritePaths[ i ].c_str() );
+
+    return 0;
 }
 
 }

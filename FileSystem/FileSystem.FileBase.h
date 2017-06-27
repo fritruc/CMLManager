@@ -28,8 +28,12 @@ public:
     virtual  bool       IsDirectory() const = 0;
 
     int                 Depth() const;
+    virtual  int        IncDepth();
+
+protected:
     int                 Depth( int iDepth );
 //@}
+
 
 public:
 /**@Name CMakeLists */

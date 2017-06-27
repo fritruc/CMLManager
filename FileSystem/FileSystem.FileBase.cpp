@@ -71,6 +71,13 @@ cFileBase::Depth() const
 
 
 int 
+cFileBase::IncDepth()
+{
+    ++mDepth;
+    return 0;
+}
+
+int 
 cFileBase::Depth( int iDepth )
 {
     mDepth = iDepth;

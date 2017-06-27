@@ -175,47 +175,47 @@ cFile::ReadOS()
     FileOS( kNone );
 
     return 0;
-}
+} 
 
 
 int
 cFile::DebugPrint() const
 {
     printf( "File : %s", Name().c_str() );
-    printf( "%*c", 20 - Name().size(), ' ' );
+    printf( "%*c", 100 - Name().size() - Depth()*6, ' ' );
 
     if( IsCompiled() )
-        printf( "C" );
+        printf( "C  " );
     else
-        printf( " " );
+        printf( "NC " );
 
     if( IsNewFile() )
-        printf( " N" );
+        printf( "  N" );
     else
-        printf( "  " );
+        printf( "   " );
 
     if( mFileType == kSource )
         printf( "   Source file " );
     else if( mFileType == kHeader )
         printf( "   Header file " );
     else
-        printf( "   Other file " );
+        printf( "   Other file  " );
 
     switch( FileOS() )
     {
         case kLinux :
         {
-            printf( " -- Linux File" );
+            printf( "   -- Linux File" );
             break;
         }
         case kMacosx :
         {
-            printf( " -- MacOSX File" );
+            printf( "   -- MacOSX File" );
             break;
         }
         case kWindows:
         {
-            printf( " -- Windows File" );
+            printf( "   -- Windows File" );
             break;
         }
         default :
