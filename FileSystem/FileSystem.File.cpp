@@ -94,6 +94,23 @@ int
 cFile::ReadOS()
 {
     std::string name = Name();
+    // going to lower, so we can easily compare
+    for( unsigned int i = 0; i < name.size(); ++i )
+        name[ i ] = std::tolower( name[ i ], std::locale() );
+
+    //========= EXTENSION SEARCH =============
+    // First, looking extension if mm
+    std::size_t dotPos = name.find_last_of( '.' );
+    std::string extension = name.substr( dotPos + 1 );
+ 
+    if( !strcmp( extension.c_str(), "mm" ) )
+    {
+        FileOS( kMacosx );
+        return  0;
+    }
+
+    //=========== Name-OS SEARCH =============
+    // If extension isn't specific, we look for OS name in the file name after a dash '-'
     std::size_t dashPos = name.find_last_of( '-' );
 
     // No - in the file name = not OS specific
@@ -105,14 +122,6 @@ cFile::ReadOS()
     // This would be, just a - like File-
     if( os.size() <= 0 )
         return  0;
-
-    // going to lower, so we can easily compare
-    for( unsigned int i = 0; i < os.size(); ++i )
-        os[ i ] = std::tolower( os[ i ], std::locale() );
-
-    //TODO : Add files called Cocoa.h for example
-    //TODO : Add extension watch : .mm -> Macosx file
-    //TODO: SoundSequence-Linux-alsa <-- last dash doesn't work here..
 
     std::size_t found = os.find( "linux" );
     if( found != std::string::npos )
@@ -141,6 +150,27 @@ cFile::ReadOS()
         FileOS( kWindows );
         return  0;
     }
+
+    //=========== Full name SEARCH =============
+    std::string nameWithoutExtension = name.substr( dotPos - 1 );
+
+    if( !strcmp( nameWithoutExtension.c_str(), "linux" ) )
+    {
+        FileOS( kLinux );
+        return  0;
+    }
+
+    if( !strcmp( nameWithoutExtension.c_str(), "macosx" ) || !strcmp( nameWithoutExtension.c_str(), "cocoa" ) )
+    {
+        FileOS( kMacosx );
+        return  0;
+    }
+
+    if( !strcmp( nameWithoutExtension.c_str(), "windows" ) || !strcmp( nameWithoutExtension.c_str(), "win32" ) || !strcmp( nameWithoutExtension.c_str(), "win64" ) )
+    {
+        FileOS( kWindows );
+        return  0;
+    }  
 
     FileOS( kNone );
 

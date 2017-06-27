@@ -62,6 +62,10 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
             os = "WINDOWS";
             break;
         }
+        default :
+        {
+            break;
+        }
     }
 
     if( FileOS() != kNone )
@@ -96,8 +100,6 @@ cDirectory::ReadOS()
     for( unsigned int i = 0; i < name.size(); ++i )
         name[ i ] = std::tolower( name[ i ], std::locale() );
 
-    //TODO: If a dir is OSSpecific, all files inside are also os specific
-
     if( !strcmp( name.c_str(), "linux" ) )
     {
         FileOS( kLinux );
@@ -125,6 +127,12 @@ cDirectory::ReadOS()
 int
 cDirectory::AddContent( cFileBase* iFile )
 {
+    // If we meet an os specific file and if this directory is OS specific, 
+    // then it'll be specific to that same OS
+    cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
+    if( fileOSSpecific && FileOS() != kNone )
+        fileOSSpecific->FileOS( FileOS() );
+
     iFile->Depth( Depth() + 1 );
     mContent.push_back( iFile );
     return 0;

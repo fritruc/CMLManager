@@ -8,7 +8,8 @@
 int
 main( int argc, char** argv )
 {
-    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/work/trunk/tvplibs10" );
+    //::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/work/trunk/tvplibs10" );
+    ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( "/home/damien/projects/CMLManager/MakeList" );
 
     if( !mainDir )
         return  0;

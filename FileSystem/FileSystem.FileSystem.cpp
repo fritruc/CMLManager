@@ -59,7 +59,10 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 
         if( S_ISDIR( fileStat.st_mode ) )
         {
-            //TODO: dismiss folder starting with . : .vscode, .svn
+            // Dismisses folders starting with . : .vscode, .svn
+            if( files->d_name[ 0 ] == '.' )
+                continue;
+
             ::nFileSystem::cDirectory* directory = ReadDirectory( filePath );
             mainDirectory->AddContent( directory );
         }
