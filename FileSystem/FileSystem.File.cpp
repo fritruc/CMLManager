@@ -102,7 +102,7 @@ cFile::ReadOS()
     // First, looking extension if mm
     std::size_t dotPos = name.find_last_of( '.' );
     std::string extension = name.substr( dotPos + 1 );
- 
+
     if( !strcmp( extension.c_str(), "mm" ) )
     {
         FileOS( kMacosx );
@@ -152,6 +152,7 @@ cFile::ReadOS()
     }
 
     //=========== Full name SEARCH =============
+    //TODO: Base.Cocoa.h isn't macosx with this
     std::string nameWithoutExtension = name.substr( dotPos - 1 );
 
     if( !strcmp( nameWithoutExtension.c_str(), "linux" ) )
@@ -170,12 +171,12 @@ cFile::ReadOS()
     {
         FileOS( kWindows );
         return  0;
-    }  
+    }
 
     FileOS( kNone );
 
     return 0;
-} 
+}
 
 
 int

@@ -26,7 +26,7 @@ cCMakeListsFile::IsDirectory() const
 int
 cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
 {
-    std::ifstream file( Path() ); 
+    std::ifstream file( Path() );
 
     std::string fileLine;
     bool isCompiled = true;
@@ -36,6 +36,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
     {
         while( getline( file, fileLine ) )
         {
+            // TODO: Not find, otherwise it'll mix Test & TestSuite
             std::size_t found = fileLine.find( iFile->Name() );
             if( found != std::string::npos )
             {
@@ -43,7 +44,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
 
                 found = fileLine.find( '#' );
                 if( found != std::string::npos )
-                    isCompiled = false;  
+                    isCompiled = false;
 
                 break;
             }
@@ -61,6 +62,12 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
 int
 cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
+    //TODO: add exceptions for TARGET and INCLUDE :
+    /*
+    example :
+    ${RELATIVE_DIR}/../TVPA/TVPA.MagicNumbers.h
+
+    */
     return  0;
 }
 
@@ -68,7 +75,7 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
 int
 cCMakeListsFile::DebugPrint() const
 {
-    printf( "CMakeFile : %s\n", Name().c_str() );  
+    printf( "CMakeFile : %s\n", Name().c_str() );
 
     return 0;
 }
