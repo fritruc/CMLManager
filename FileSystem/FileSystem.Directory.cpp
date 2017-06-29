@@ -12,8 +12,8 @@ namespace nFileSystem
 
 cDirectory::~cDirectory()
 {
-    for( unsigned int i = 0; i < mContent.size(); ++i )
-        delete  mContent[ i ];
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
+        delete  *i;
 
     delete  mCMakeFile;
 }
@@ -39,8 +39,8 @@ cDirectory::IncDepth()
 {
     tSuperClass::IncDepth();
 
-    for( unsigned int i = 0; i < mContent.size(); ++i )
-        mContent[ i ]->IncDepth();
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
+        (*i)->IncDepth();
     
     return 0;
 }
@@ -49,8 +49,8 @@ cDirectory::IncDepth()
 int
 cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
-    std::string tabs;				// The tabs as string
-    std::string tabsSUBDORECTORY;	// The tabs to use when writing the SUBDIRECTORY line, can be different form tabs if OSSpecific
+    std::string tabs;               // The tabs as string
+    std::string tabsSUBDORECTORY;   // The tabs to use when writing the SUBDIRECTORY line, can be different form tabs if OSSpecific
     for( int i = 0; i < iIntentTabs; ++i )
         tabs.append( "    " );
 
@@ -162,9 +162,9 @@ cDirectory::SetMakeFile( cCMakeListsFile* iCMakeFile )
 bool
 cDirectory::IsThereOSSpecificFileInContent( cFileOSSpecific::eOS iOS ) const
 {
-    for( unsigned int i = 0; i < mContent.size(); ++i )
+    for( std::vector< cFileBase* >::const_iterator i( mContent.begin() ) ; i != mContent.end() ; ++i )
     {
-        cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+        cFile* file = dynamic_cast< cFile* >( *i );
         if( file && file->FileOS() == iOS )
             return  true;
     }
@@ -179,9 +179,17 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
     if( !mCMakeFile )
         return  0;
 
-    for( unsigned int i = 0; i < mContent.size(); ++i )
-        mCMakeFile->ReadFileProperty( mContent[ i ] );
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
+        mCMakeFile->ReadFileProperty( *i );
 
+    return 0;
+}
+
+
+int 
+cDirectory::SortAlphabetically()
+{
+    //TODO:
     return 0;
 }
 
@@ -199,14 +207,16 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     cMakeListsFile << "# ------CMakesLists file generated with CMLManager ------ \n\n";
 
+    mCMakeFile->PrintInCMakeListFile( cMakeListsFile, 0 );
+
     cMakeListsFile << "#-----------------------DIRECTORIES----------------------\n";
     cMakeListsFile << "\n\n";
 
     // Writes directories first
-    for( unsigned int i = 0; i < mContent.size(); ++i )
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
     {
-        if( mContent[ i ]->IsDirectory() )
-            mContent[ i ]->PrintInCMakeListFile( cMakeListsFile, 0 );
+        if( (*i)->IsDirectory() )
+            (*i)->PrintInCMakeListFile( cMakeListsFile, 0 );
         else
             break; //Assuming dir are given first and files then
     }
@@ -219,11 +229,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     // Writes generic sources first
     WriteSetSourcePart( cMakeListsFile, 0 );
-    for( unsigned int i = 0; i < mContent.size(); ++i )
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
     {
-        if( !mContent[ i ]->IsDirectory() )
+        if( !(*i)->IsDirectory() )
         {
-            cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+            cFile* file = dynamic_cast< cFile* >( *i );
             if( file && file->FileType() == cFile::eType::kSource && file->FileOS() == cFileOSSpecific::eOS::kNone )
                 file->PrintInCMakeListFile( cMakeListsFile, 1 );
         }
@@ -232,11 +242,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     // Writes generic headers then
     WriteSetHeaderPart( cMakeListsFile, 0 );
-    for( unsigned int i = 0; i < mContent.size(); ++i )
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
     {
-        if( !mContent[ i ]->IsDirectory() )
+        if( !(*i)->IsDirectory() )
         {
-            cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+            cFile* file = dynamic_cast< cFile* >( *i );
             if( file && file->FileType() == cFile::eType::kHeader && file->FileOS() == cFileOSSpecific::eOS::kNone )
                 file->PrintInCMakeListFile( cMakeListsFile, 1 );
         }
@@ -252,11 +262,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kLinux && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -265,11 +275,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Headers
         WriteSetHeaderPart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kLinux && file->FileType() == cFile::eType::kHeader )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -285,11 +295,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kMacosx && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -298,11 +308,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Headers
         WriteSetHeaderPart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kMacosx && file->FileType() == cFile::eType::kHeader )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -318,11 +328,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Sources
         WriteSetSourcePart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kWindows && file->FileType() == cFile::eType::kSource )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -331,11 +341,11 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
         //Headers
         WriteSetHeaderPart( cMakeListsFile, 1 );
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( !mContent[ i ]->IsDirectory() )
+            if( !(*i)->IsDirectory() )
             {
-                cFile* file = dynamic_cast< cFile* >( mContent[ i ] );
+                cFile* file = dynamic_cast< cFile* >( *i );
                 if( file && file->FileOS() == cFileOSSpecific::eOS::kWindows && file->FileType() == cFile::eType::kHeader )
                     file->PrintInCMakeListFile( cMakeListsFile, 2 );
             }
@@ -366,10 +376,10 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     if( iRecursive )
     {
-        for( unsigned int i = 0; i < mContent.size(); ++i )
+        for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         {
-            if( mContent[ i ]->IsDirectory() )
-                dynamic_cast< cDirectory* >( mContent[ i ] )->CreateCMakeListFile( iRecursive );
+            if( (*i)->IsDirectory() )
+                dynamic_cast< cDirectory* >( *i )->CreateCMakeListFile( iRecursive );
             else
                 break; //Assuming dir are given first and files then
         }
@@ -379,42 +389,13 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     IF( ${CMAKE_BUILD_TYPE} STREQUAL "TVPDB" )
         ADD_SUBDIRECTORY( TVPDB )
-    ELSE()
+    ENDIF()
+    IF( ${CMAKE_BUILD_TYPE} STRNEQUAL "TVPDB" )
         ADD_SUBDIRECTORY( TVPA )
     ENDIF()
     */
 
     return 0;
-}
-
-
-int
-cDirectory::WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs )
-{
-    std::string tabs;
-    for( int i = 0; i < iIntentTabs; ++i )
-        tabs.append( "    " );
-
-    iOFStream << tabs << "SET(\n";
-    iOFStream << tabs << "    HEADER_FILES\n";
-    iOFStream << tabs << "    ${HEADER_FILES}\n";
-
-    return  0;
-}
-
-
-int
-cDirectory::WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs )
-{
-    std::string tabs;
-    for( int i = 0; i < iIntentTabs; ++i )
-        tabs.append( "    " );
-
-    iOFStream << tabs << "SET(\n";
-    iOFStream << tabs << "    SRC_FILES\n";
-    iOFStream << tabs << "    ${SRC_FILES}\n";
-
-    return  0;
 }
 
 
@@ -431,7 +412,7 @@ int
 cDirectory::DebugPrintContent() const
 {
     printf( "Directory : %s", Name().c_str() );
-    printf( "%*c", 95 - Name().size() - Depth() * 6, ' ' );
+    printf( "%*c", 95 - int( Name().size() ) - Depth() * 6, ' ' );
 
     if( IsCompiled() )
         printf( "C  " );
@@ -472,10 +453,10 @@ cDirectory::DebugPrintContent() const
     for( int i = 0; i < Depth() + 1; ++i )
         tabs.append( "      " );
 
-    for( unsigned int i = 0; i < mContent.size(); ++i )
+    for( std::vector< cFileBase* >::const_iterator i( mContent.begin() ); i != mContent.end(); ++i )
     {
         printf( "%s", tabs.c_str() );
-        mContent[ i ]->DebugPrint();
+        (*i)->DebugPrint();
     }
 
     if( mCMakeFile )

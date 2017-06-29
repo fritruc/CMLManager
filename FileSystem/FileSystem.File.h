@@ -23,7 +23,7 @@ public:
 /**@Name Construction/Destruction */
 //@{
     virtual  ~cFile();
-    cFile( const std::string & iPath );
+    cFile( const std::string& iPath );
 //@}
 
 public:
@@ -50,7 +50,7 @@ public:
 /**@Name cFileOSSpecific Overrides */
 //@{
     virtual  int  ReadOS();
-//@} 
+//@}
 
 public:
 /**@Name Debug */
@@ -58,9 +58,7 @@ public:
     virtual  int  DebugPrint() const;
 //@}
 
-private: 
-    int         mFile; 
-
+private:  
     eType       mFileType;
 };
 

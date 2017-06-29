@@ -1,5 +1,6 @@
 #include "FileSystem.FileBase.h"
 
+#include <fstream>
 
 namespace nFileSystem
 {
@@ -31,6 +32,36 @@ const std::string&
 cFileBase::Name() const
 {
     return  mName;
+}
+
+
+const std::string& 
+cFileBase::TargetName() const
+{
+    return  mTargetName;
+}
+
+
+int 
+cFileBase::TargetName( const std::string& iTargetName )
+{
+    mTargetName = iTargetName;
+    return  0;
+}
+
+
+bool 
+cFileBase::IsTargeted() const
+{
+    return  mIsTargeted;
+}
+
+
+int 
+cFileBase::IsTargeted( bool iIsTargeted )
+{
+    mIsTargeted = iIsTargeted;
+    return  0;
 }
 
 
@@ -82,6 +113,55 @@ cFileBase::Depth( int iDepth )
 {
     mDepth = iDepth;
     return 0;
+}
+
+
+int
+cFileBase::WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs ) const
+{
+    std::string tabs;
+    for( int i = 0; i < iIntentTabs; ++i )
+        tabs.append( "    " );
+
+    iOFStream << tabs << "SET(\n";
+    iOFStream << tabs << "    HEADER_FILES\n";
+    iOFStream << tabs << "    ${HEADER_FILES}\n";
+
+    return  0;
+}
+
+
+int
+cFileBase::WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs ) const
+{
+    std::string tabs;
+    for( int i = 0; i < iIntentTabs; ++i )
+        tabs.append( "    " );
+
+    iOFStream << tabs << "SET(\n";
+    iOFStream << tabs << "    SRC_FILES\n";
+    iOFStream << tabs << "    ${SRC_FILES}\n";
+
+    return  0;
+}
+
+
+bool
+cFileBase::operator<( const cFileBase& iRHS ) const
+{
+    return  mName > iRHS.mName;
+}
+
+
+bool
+cFileBase::operator<( const cFileBase* iRHS ) const
+{
+    return  mName > iRHS->mName;
+}
+
+bool cFileBase::operator()( const cFileBase * iRHS, const cFileBase * iLHS ) const
+{
+    return  iRHS->mName > iLHS->mName;
 }
 
 }

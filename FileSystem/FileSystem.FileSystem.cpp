@@ -38,7 +38,7 @@ cFileSystem::FavoritePath( unsigned int iPath ) const
 }
 
 
-unsigned int 
+unsigned long 
 cFileSystem::FavoriteCount() const
 {
     return  mFavoritePaths.size();
@@ -83,6 +83,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
                 continue;
 
             ::nFileSystem::cDirectory* directory = ReadDirectory( filePath );
+            directory->SortAlphabetically();
             mainDirectory->AddContent( directory );
         }
         else

@@ -2,6 +2,8 @@
 
 #include "FileSystem.File.h"
 
+#include <set>
+
 namespace nFileSystem
 {
 
@@ -30,7 +32,10 @@ public:
 public:
 /**@Name CMakeLists reading */
 //@{
-    int             ReadFileProperty( cFileBase* iFile )  const; 
+    int             ReadFileProperty( cFileBase* iFile );
+    std::string     ExtractTarget( std::ifstream& iIFStream )  const;
+    std::string     ExtractIncludeFile( std::ifstream& iIFStream )  const;
+    std::string     ExtractIncludeDir( std::ifstream& iIFStream )  const;
 //@}
 
 public:
@@ -38,6 +43,10 @@ public:
 //@{
     virtual  int  DebugPrint() const;
 //@}
+
+
+private:
+    std::set< cFileBase* > mExtraIncludes;
 
 };
 

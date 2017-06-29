@@ -12,7 +12,7 @@ main( int argc, char** argv )
     ::nFileSystem::cFileSystem* fileSystem = new ::nFileSystem::cFileSystem();
 
     if( !fileSystem )
-        return  1;
+        return  1; 
 
     for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
     {

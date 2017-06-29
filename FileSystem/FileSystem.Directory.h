@@ -52,14 +52,13 @@ public:
 /**@Name Content management */
 //@{
     int  ReadAllPropertiesFromCMakeListsFile();
+    int  SortAlphabetically();
 //@}
 
 public:
 /**@Name CMakeList */
 //@{
     int  CreateCMakeListFile( bool iRecursive );
-    int  WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs );
-    int  WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs );
 //@}
 
 public:
@@ -75,6 +74,6 @@ private:
 };
 
 
-}
+} 
 
 

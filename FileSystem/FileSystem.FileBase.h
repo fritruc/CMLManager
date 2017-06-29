@@ -19,6 +19,13 @@ public:
     const std::string&  Path() const;
     const std::string&  Name() const;
 
+
+    const std::string&  TargetName() const;
+    int                 TargetName( const std::string& iTargetName );
+
+    bool                IsTargeted() const;
+    int                 IsTargeted( bool iIsTargeted );
+
     bool                IsCompiled() const;
     int                 IsCompiled( bool iIsCompiled );
 
@@ -32,13 +39,23 @@ public:
 
 protected:
     int                 Depth( int iDepth );
-//@}
-
+//@} 
 
 public:
 /**@Name CMakeLists */
 //@{
-    virtual  int        PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const = 0;
+    virtual  int    PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const = 0;
+
+    int             WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs ) const;
+    int             WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs ) const;
+//@}
+
+public:
+/**@Name Operators */
+//@{
+    bool operator<( const cFileBase& iRHS ) const;
+    bool operator<( const cFileBase* iRHS ) const;
+    bool operator()( const cFileBase* iRHS, const cFileBase* iLHS ) const;
 //@} 
 
 public:
@@ -50,6 +67,9 @@ public:
 private:
     std::string mPath;
     std::string mName;
+
+    bool        mIsTargeted;
+    std::string mTargetName;
 
     bool        mIsCompiled;    // The file is compiled or not ( is it in commentary (#) in the CMakeLists file )
     bool        mIsNewFile;     // The file is new = it's not in the CMakeLists file yet

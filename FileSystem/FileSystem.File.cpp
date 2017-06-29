@@ -15,7 +15,7 @@ cFile::~cFile()
 {
 }
 
-nFileSystem::cFile::cFile( const std::string & iPath ) :
+nFileSystem::cFile::cFile( const std::string& iPath ) :
     tSuperClass( iPath ),
     mFileType( kOther )
 {
@@ -152,8 +152,15 @@ cFile::ReadOS()
     }
 
     //=========== Full name SEARCH =============
-    //TODO: Base.Cocoa.h isn't macosx with this
+    //TODO: Maybe use regex in all File reading (OS and type )
     std::string nameWithoutExtension = name.substr( dotPos - 1 );
+
+    // If then name is A.B.C.Cocoa(.h), we need one more extraction
+    dotPos = name.find_last_of( '.' );
+
+    // One more . = file was something.cocoa(.h)
+    if( dashPos != std::string::npos )
+        nameWithoutExtension = nameWithoutExtension.substr( dashPos + 1 ); 
 
     if( !strcmp( nameWithoutExtension.c_str(), "linux" ) )
     {
@@ -176,14 +183,14 @@ cFile::ReadOS()
     FileOS( kNone );
 
     return 0;
-}
+} 
 
 
 int
 cFile::DebugPrint() const
 {
     printf( "File : %s", Name().c_str() );
-    printf( "%*c", 100 - Name().size() - Depth()*6, ' ' );
+    printf( "%*c", 100 - int( Name().size() ) - Depth()*6, ' ' );
 
     if( IsCompiled() )
         printf( "C  " );
@@ -227,7 +234,6 @@ cFile::DebugPrint() const
 
     return 0;
 }
-
 
 }
 

@@ -24,7 +24,7 @@ public:
     const std::string FavoritePath( unsigned int iPath ) const;
 
     /** How many directories are in favorites ? */
-    unsigned int FavoriteCount() const;
+    unsigned long FavoriteCount() const;
 //@}
 
 public:
