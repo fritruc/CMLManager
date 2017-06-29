@@ -36,7 +36,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile ) const
     {
         while( getline( file, fileLine ) )
         {
-            // TODO: Not find, otherwise it'll mix Test & TestSuite
+            // TODO: Not find, otherwise it'll mix Test & TestSuite & SuiteTest
             std::size_t found = fileLine.find( iFile->Name() );
             if( found != std::string::npos )
             {
