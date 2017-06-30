@@ -38,7 +38,7 @@ cFileSystem::FavoritePath( unsigned int iPath ) const
 }
 
 
-unsigned long 
+unsigned long
 cFileSystem::FavoriteCount() const
 {
     return  mFavoritePaths.size();
@@ -125,7 +125,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 }
 
 
-int 
+int
 cFileSystem::ReadOptions()
 {
     cFile* optionFile = new cFile( "Options/option.txt" );

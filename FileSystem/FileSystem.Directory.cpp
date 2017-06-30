@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <string.h>
 
 namespace nFileSystem
@@ -34,14 +35,14 @@ cDirectory::IsDirectory() const
 }
 
 
-int 
+int
 cDirectory::IncDepth()
 {
     tSuperClass::IncDepth();
 
     for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         (*i)->IncDepth();
-    
+
     return 0;
 }
 
@@ -139,7 +140,7 @@ cDirectory::ReadOS()
 int
 cDirectory::AddContent( cFileBase* iFile )
 {
-    // If we meet an os specific file and if this directory is OS specific, 
+    // If we meet an os specific file and if this directory is OS specific,
     // then it'll be specific to that same OS
     cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
     if( fileOSSpecific && FileOS() != kNone )
@@ -185,11 +186,17 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
     return 0;
 }
 
+static
+bool
+CompareFiles( const  cFileBase* iRHS, const  cFileBase* iLHS )
+{
+    return  iRHS->Name() < iLHS->Name();
+}
 
-int 
+int
 cDirectory::SortAlphabetically()
 {
-    //TODO:
+    std::sort( mContent.begin(), mContent.end(), &CompareFiles );
     return 0;
 }
 

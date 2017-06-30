@@ -12,11 +12,12 @@ main( int argc, char** argv )
     ::nFileSystem::cFileSystem* fileSystem = new ::nFileSystem::cFileSystem();
 
     if( !fileSystem )
-        return  1; 
+        return  1;
 
     for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
     {
         ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( fileSystem->FavoritePath( i ) );
+        mainDir->SortAlphabetically();
 
         if( !mainDir )
             return  0;
