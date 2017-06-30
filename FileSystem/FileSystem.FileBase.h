@@ -17,7 +17,9 @@ public:
 /**@Name Accessors/Modifiers */
 //@{
     const std::string&  Path() const;
+
     const std::string&  Name() const;
+    const  int          Name( std::string&  iName );
 
 
     const std::string&  TargetName() const;

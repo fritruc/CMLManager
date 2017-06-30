@@ -2,7 +2,7 @@
 
 #include "FileSystem.File.h"
 
-#include <set>
+#include <vector>
 
 namespace nFileSystem
 {
@@ -37,6 +37,11 @@ public:
     std::string     ExtractIncludeFile( std::ifstream& iIFStream )  const;
     std::string     ExtractIncludeDir( std::ifstream& iIFStream )  const;
 //@}
+public:
+/**@Name String formatting */
+//@{
+    int  EscapeAllRegChar( std::string& oString );
+//@}
 
 public:
 /**@Name Debug */
@@ -46,7 +51,7 @@ public:
 
 
 private:
-    std::set< cFileBase* > mExtraIncludes;
+    std::vector< cFileBase* > mExtraIncludes;
 
 };
 

@@ -36,7 +36,10 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
     bool isCompiled = true;
     bool isNewFile = true;
 
-    std::regex fileSeeking( "[ /(]" + iFile->Name() + "[ )]*$" );
+    std::string fileName = iFile->Name();
+
+    EscapeAllRegChar( fileName );
+    //std::regex fileSeeking( "(?:}\/| |\()" + iFile->Name() + "[ )]*$" ); 
 
     if( file.is_open() )
     {
@@ -57,18 +60,44 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                 found = fileLine.find( "#INCLUDEFILE" );
                 if( found != std::string::npos )
                 {
-                    cFile* file = new  cFile( fileLine.substr( fileLine.find_first_of( '=' ) + 1 ) );
+                    std::string fileName = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
+                    if( fileName.size() == 0 )
+                        return  0;
+
+                    cFile* file = new  cFile( fileName );
                     makeList->ReadFileProperty( file );
-                    mExtraIncludes.insert( file );
+                    // Now, because this extra include will give a path like : #INCLUDEFILE=../../someting/file.cpp
+                    // cFile constructor will cut the name to file.cpp
+                    // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
+                    // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
+                    // So we put here fileName, being the path, as it's actual name
+                    if( fileName[ 0 ] == '/' )
+                        fileName = fileName.substr( 1 );
+                    file->Name( fileName );
+
+                    mExtraIncludes.push_back( file );
                 }
                 else
                 {
                     found = fileLine.find( "#INCLUDEDIR" );
                     if( found != std::string::npos )
                     {
-                        cDirectory* dir = new  cDirectory( fileLine.substr( fileLine.find_first_of( '=' ) + 1 ) );
+                        std::string dirName = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
+                        if( dirName.size() == 0 )
+                            return  0;
+
+                        cDirectory* dir = new  cDirectory( dirName );
                         makeList->ReadFileProperty( dir );
-                        mExtraIncludes.insert( dir );
+                        // Now, because this extra include will give a path like : #INCLUDEFILE=../../someting/file.cpp
+                        // cFile constructor will cut the name to file.cpp
+                        // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
+                        // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
+                        // So we put here fileName, being the path, as it's actual name
+                        if( dirName[ 0 ] == '/' )
+                            dirName = dirName.substr( 1 );
+                        dir->Name( dirName );
+
+                        mExtraIncludes.push_back( dir );
                     }
                 }
             }
@@ -78,11 +107,11 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
             while( getline( file, fileLine ) )
             {
                 std::size_t found;
-                // found = fileLine.find( iFile->Name() );
-                // if( found != std::string::npos )
-                // {
-                if( std::regex_search( fileLine, fileSeeking ) )
+                found = fileLine.find( iFile->Name() );
+                if( found != std::string::npos )
                 {
+                //if( std::regex_search( fileLine, fileSeeking ) )
+                //{
                     isNewFile = false;
 
                     found = fileLine.find( "#TARGET" );
@@ -92,7 +121,6 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                         iFile->TargetName( "TARGET" );
                         continue;
                     }
-
 
                     found = fileLine.find( '#' );
                     if( found != std::string::npos )
@@ -133,6 +161,22 @@ cCMakeListsFile::ExtractIncludeDir( std::ifstream& iIFStream ) const
 }
 
 
+int 
+cCMakeListsFile::EscapeAllRegChar( std::string & oString )
+{
+    for( size_t i = 0; i < oString.size(); ++i )
+    {
+        if( oString[ i ] == '.' || oString[ i ] == '/' )
+        {
+            oString.insert( i, "\\" );
+            ++i;
+        }
+    }
+
+    return  0;
+}
+
+
 int
 cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
@@ -142,7 +186,18 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
     if( mExtraIncludes.size() == 0 )
         return  0;
 
-    for( std::set< cFileBase* >::iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
+    iOFStream << "#---------------------EXTRA INCLUDES---------------------\n"; 
+    for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
+    { 
+        if( ( *i )->IsDirectory() )
+            iOFStream << "#INCLUDEDIR=" + ( *i )->Path() + "\n";
+        else
+            iOFStream << "#INCLUDEFILE=" + ( *i )->Path() + "\n";
+    }
+
+    iOFStream << "\n\n\n";
+
+    for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
     {
         cFileBase* file = *i;
         if( file->IsDirectory() )
@@ -152,19 +207,19 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
     iOFStream << "\n\n";
 
     WriteSetSourcePart( iOFStream, 0 );
-    for( std::set< cFileBase* >::iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
+    for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
     {
         cFile* file = dynamic_cast<cFile*>( *i );
-        if( file->FileType() == cFile::eType::kSource )
+        if( file && file->FileType() == cFile::eType::kSource )
             file->PrintInCMakeListFile( iOFStream, 1 );
     }
     iOFStream << ")\n\n";
 
     WriteSetHeaderPart( iOFStream, 0 );
-    for( std::set< cFileBase* >::iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
+    for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
     {
         cFile* file = dynamic_cast<cFile*>( *i );
-        if( file->FileType() == cFile::eType::kHeader )
+        if( file && file->FileType() == cFile::eType::kHeader )
             file->PrintInCMakeListFile( iOFStream, 1 );
     }
     iOFStream << ")\n\n";
@@ -177,6 +232,15 @@ int
 cCMakeListsFile::DebugPrint() const
 {
     printf( "CMakeFile : %s\n", Name().c_str() );
+
+    std::string tabs;
+    for( int i = 0; i < Depth() + 1; ++i )
+        tabs.append( "      " );
+
+    for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
+    {
+        printf( "%s EXTRA_INCLUDE :  %s\n", tabs.c_str(), (*i)->Path().c_str() );
+    }
 
     return 0;
 }

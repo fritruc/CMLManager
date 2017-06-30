@@ -156,9 +156,6 @@ cFile::ReadOS()
     //=========== Full name SEARCH =============
     std::string nameWithoutExtension = name.substr( 0, dotPos );
 
-    if( name.find("base.cocoa") != std::string::npos )
-        int a = 1;
-
     // If then name is A.B.C.Cocoa(.h), we need one more extraction
     dotPos = nameWithoutExtension.find_last_of( '.' );
 

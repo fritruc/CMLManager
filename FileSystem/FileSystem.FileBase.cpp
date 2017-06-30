@@ -35,6 +35,14 @@ cFileBase::Name() const
 }
 
 
+const int 
+cFileBase::Name( std::string & iName )
+{
+    mName = iName;
+    return  0;
+}
+
+
 const std::string& 
 cFileBase::TargetName() const
 {

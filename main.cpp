@@ -17,6 +17,12 @@ main( int argc, char** argv )
     for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
     {
         ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( fileSystem->FavoritePath( i ) );
+        if( !mainDir )
+        {
+            printf( "%s does not name a file or directory\n", fileSystem->FavoritePath( i ).c_str() );
+            continue;
+        }
+
         mainDir->SortAlphabetically();
 
         if( !mainDir )
@@ -25,7 +31,7 @@ main( int argc, char** argv )
         mainDir->DebugPrint();
 
         char input;
-
+        
         std::cout << "Generate CMakeLists ? (y/n)\n";
         std::cin >> input;
 
@@ -38,7 +44,11 @@ main( int argc, char** argv )
 
         delete  mainDir;
     }
+
     delete  fileSystem;
+
+    char waitUser;
+    std::cin >> waitUser;
 
     return 0;
 }

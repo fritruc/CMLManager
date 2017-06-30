@@ -183,6 +183,8 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
     for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
         mCMakeFile->ReadFileProperty( *i );
 
+    mCMakeFile->ReadFileProperty( mCMakeFile );
+
     return 0;
 }
 
@@ -214,7 +216,8 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     cMakeListsFile << "# ------CMakesLists file generated with CMLManager ------ \n\n";
 
-    mCMakeFile->PrintInCMakeListFile( cMakeListsFile, 0 );
+    if( mCMakeFile )
+        mCMakeFile->PrintInCMakeListFile( cMakeListsFile, 0 );
 
     cMakeListsFile << "#-----------------------DIRECTORIES----------------------\n";
     cMakeListsFile << "\n\n";
