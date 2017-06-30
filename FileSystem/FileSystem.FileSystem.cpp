@@ -138,7 +138,8 @@ cFileSystem::ReadOptions()
         std::string path;
         while( getline( optionStream, path ) )
         {
-            mFavoritePaths.push_back( path );
+            if( path[ 0 ] != '#' )
+                mFavoritePaths.push_back( path );
         }
     }
     else
