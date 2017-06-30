@@ -93,6 +93,8 @@ cFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 int
 cFile::ReadOS()
 {
+    //TODO: Maybe use regex in all File reading (OS and type )
+
     std::string name = Name();
     // going to lower, so we can easily compare
     for( unsigned int i = 0; i < name.size(); ++i )
@@ -113,54 +115,56 @@ cFile::ReadOS()
     // If extension isn't specific, we look for OS name in the file name after a dash '-'
     std::size_t dashPos = name.find_last_of( '-' );
 
-    // No - in the file name = not OS specific
-    if( dashPos == std::string::npos )
-        return  0;
-
-    std::string os = name.substr( dashPos + 1 );
-
-    // This would be, just a - like File-
-    if( os.size() <= 0 )
-        return  0;
-
-    std::size_t found = os.find( "linux" );
-    if( found != std::string::npos )
+    // If - in the name, we extract the name
+    if( dashPos != std::string::npos )
     {
-        FileOS( kLinux );
-        return  0;
-    }
+        std::string os = name.substr( dashPos + 1 );
 
-    found = os.find( "mac" );
-    if( found != std::string::npos )
-    {
-        FileOS( kMacosx );
-        return  0;
-    }
+        // This would be, just a - like File-
+        if( os.size() <= 0 )
+            return  0;
 
-    found = os.find( "cocoa" );
-    if( found != std::string::npos )
-    {
-        FileOS( kMacosx );
-        return  0;
-    }
+        std::size_t found = os.find( "linux" );
+        if( found != std::string::npos )
+        {
+            FileOS( kLinux );
+            return  0;
+        }
 
-    found = os.find( "win" );
-    if( found != std::string::npos )
-    {
-        FileOS( kWindows );
-        return  0;
+        found = os.find( "mac" );
+        if( found != std::string::npos )
+        {
+            FileOS( kMacosx );
+            return  0;
+        }
+
+        found = os.find( "cocoa" );
+        if( found != std::string::npos )
+        {
+            FileOS( kMacosx );
+            return  0;
+        }
+
+        found = os.find( "win" );
+        if( found != std::string::npos )
+        {
+            FileOS( kWindows );
+            return  0;
+        }
     }
 
     //=========== Full name SEARCH =============
-    //TODO: Maybe use regex in all File reading (OS and type )
-    std::string nameWithoutExtension = name.substr( dotPos - 1 );
+    std::string nameWithoutExtension = name.substr( 0, dotPos );
+
+    if( name.find("base.cocoa") != std::string::npos )
+        int a = 1;
 
     // If then name is A.B.C.Cocoa(.h), we need one more extraction
-    dotPos = name.find_last_of( '.' );
+    dotPos = nameWithoutExtension.find_last_of( '.' );
 
     // One more . = file was something.cocoa(.h)
-    if( dashPos != std::string::npos )
-        nameWithoutExtension = nameWithoutExtension.substr( dashPos + 1 ); 
+    if( dotPos != std::string::npos )
+        nameWithoutExtension = nameWithoutExtension.substr( dotPos + 1 );
 
     if( !strcmp( nameWithoutExtension.c_str(), "linux" ) )
     {
@@ -183,7 +187,7 @@ cFile::ReadOS()
     FileOS( kNone );
 
     return 0;
-} 
+}
 
 
 int

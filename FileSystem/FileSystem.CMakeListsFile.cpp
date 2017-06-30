@@ -34,9 +34,9 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
 
     std::string fileLine;
     bool isCompiled = true;
-    bool isNewFile = true; 
+    bool isNewFile = true;
 
-    //std::regex fileSeeking( "[ /(]" + iFile->Name() + "[ )\n]" );
+    std::regex fileSeeking( "[ /(]" + iFile->Name() + "[ )]*$" );
 
     if( file.is_open() )
     {
@@ -49,7 +49,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                 // so whenever you encounter the first subdirectory or $relativedir line, you can stop
                 std::size_t found = fileLine.find( "SUBDIRECTORY" );
                 if( found != std::string::npos )
-                    break; 
+                    break;
                 found = fileLine.find( "${RELATIVE_DIR}" );
                 if( found != std::string::npos )
                     break;
@@ -71,18 +71,18 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                         mExtraIncludes.insert( dir );
                     }
                 }
-            }   
+            }
         }
         else
         {
             while( getline( file, fileLine ) )
             {
                 std::size_t found;
-                found = fileLine.find( iFile->Name() );
-                if( found != std::string::npos )
+                // found = fileLine.find( iFile->Name() );
+                // if( found != std::string::npos )
+                // {
+                if( std::regex_search( fileLine, fileSeeking ) )
                 {
-                    //if( std::regex_match( fileLine, fileSeeking ) )
-                    //{
                     isNewFile = false;
 
                     found = fileLine.find( "#TARGET" );
@@ -112,21 +112,21 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
 }
 
 
-std::string 
+std::string
 cCMakeListsFile::ExtractTarget( std::ifstream& iIFStream ) const
 {
     return  std::string();
 }
 
 
-std::string 
+std::string
 cCMakeListsFile::ExtractIncludeFile( std::ifstream& iIFStream ) const
 {
     return std::string();
 }
 
 
-std::string 
+std::string
 cCMakeListsFile::ExtractIncludeDir( std::ifstream& iIFStream ) const
 {
     return std::string();
@@ -168,7 +168,7 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
             file->PrintInCMakeListFile( iOFStream, 1 );
     }
     iOFStream << ")\n\n";
-    
+
     return  0;
 }
 
