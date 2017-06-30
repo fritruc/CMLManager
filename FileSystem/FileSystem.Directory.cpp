@@ -214,8 +214,19 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
     std::ofstream cMakeListsFile;
     cMakeListsFile.open( Path() + "/CMakeLists.txt", std::ios::in | std::ios::trunc );
 
+    //Start of file
     cMakeListsFile << "# ------CMakesLists file generated with CMLManager ------ \n\n";
+    
+    // Output Target infos
+    for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
+    {
+        if( ( *i )->IsTargeted() )
+            cMakeListsFile << "#TARGET=" + ( *i )->Name() + ":" + ( *i )->TargetOperator() + ":" + ( *i )->TargetName() + "\n";
+    }
 
+    cMakeListsFile << "\n\n";
+
+    // If we have a CMakeLists file in that directory, we output his things : Extra includes
     if( mCMakeFile )
         mCMakeFile->PrintInCMakeListFile( cMakeListsFile, 0 );
 
@@ -361,10 +372,10 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
             }
         }
         cMakeListsFile << "    )\n";
-        cMakeListsFile << "ENDIF( WINDOWS )\n\n";
+        cMakeListsFile << "ENDIF( WINDOWS )\n\n\n";
     }
 
-    cMakeListsFile << "#------------------Set in parent scope-------------------";
+    cMakeListsFile << "#------------------Set in parent scope-------------------\n";
     cMakeListsFile << "\n\n";
 
     WriteSetSourcePart( cMakeListsFile, 0 );

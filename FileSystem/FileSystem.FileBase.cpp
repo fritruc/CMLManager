@@ -13,6 +13,7 @@ cFileBase::~cFileBase()
 
 cFileBase::cFileBase( const std::string & iPath ) :
     mPath( iPath ),
+    mIsTargeted( false ),
     mIsCompiled( true ),
     mIsNewFile( true ),
     mDepth( 0 )
@@ -54,6 +55,21 @@ int
 cFileBase::TargetName( const std::string& iTargetName )
 {
     mTargetName = iTargetName;
+    return  0;
+}
+
+
+const std::string& 
+cFileBase::TargetOperator() const
+{
+    return  mTargetOperator;
+}
+
+
+int 
+cFileBase::TargetOperator( const std::string& iTargetOperator )
+{
+    mTargetOperator= iTargetOperator;
     return  0;
 }
 

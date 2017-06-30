@@ -39,7 +39,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
     std::string fileName = iFile->Name();
 
     EscapeAllRegChar( fileName );
-    //std::regex fileSeeking( "(?:}\/| |\()" + iFile->Name() + "[ )]*$" ); 
+    //std::regex fileSeeking( "(?:TARGET=\/|}\/| |\()" + iFile->Name() + "[ )]*$" ); 
 
     if( file.is_open() )
     {
@@ -117,8 +117,13 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                     found = fileLine.find( "#TARGET" );
                     if( found != std::string::npos )
                     {
+                        fileLine = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
+                        size_t firstDDotPos = fileLine.find_first_of( ':' );
+                        size_t lastDDotPos = fileLine.find_last_of( ':' );
+
                         iFile->IsTargeted( true );
-                        iFile->TargetName( "TARGET" );
+                        iFile->TargetName( fileLine.substr( lastDDotPos + 1 ) );
+                        iFile->TargetOperator( fileLine.substr( firstDDotPos + 1, fileLine.size() - lastDDotPos + 1 ) );
                         continue;
                     }
 
@@ -186,7 +191,7 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
     if( mExtraIncludes.size() == 0 )
         return  0;
 
-    iOFStream << "#---------------------EXTRA INCLUDES---------------------\n"; 
+    iOFStream << "#---------------------EXTRA INCLUDES---------------------\n\n"; 
     for( std::vector< cFileBase* >::const_iterator i( mExtraIncludes.begin() ); i != mExtraIncludes.end(); ++i )
     { 
         if( ( *i )->IsDirectory() )
@@ -201,7 +206,7 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
     {
         cFileBase* file = *i;
         if( file->IsDirectory() )
-            iOFStream << "SUBDIRECTORY( " << file->Name() << ")\n";
+            iOFStream << "SUBDIRECTORY( " << file->Path() << ")\n";
     }
 
     iOFStream << "\n\n";
@@ -222,7 +227,7 @@ cCMakeListsFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs
         if( file && file->FileType() == cFile::eType::kHeader )
             file->PrintInCMakeListFile( iOFStream, 1 );
     }
-    iOFStream << ")\n\n";
+    iOFStream << ")\n\n\n";
 
     return  0;
 }

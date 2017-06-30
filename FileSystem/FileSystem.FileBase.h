@@ -25,6 +25,9 @@ public:
     const std::string&  TargetName() const;
     int                 TargetName( const std::string& iTargetName );
 
+    const std::string&  TargetOperator() const;
+    int                 TargetOperator( const std::string& iTargetOperator );
+
     bool                IsTargeted() const;
     int                 IsTargeted( bool iIsTargeted );
 
@@ -72,6 +75,7 @@ private:
 
     bool        mIsTargeted;
     std::string mTargetName;
+    std::string mTargetOperator; // Between STREQUAL or NOT STREQUAL, so you can specify = or != targetName
 
     bool        mIsCompiled;    // The file is compiled or not ( is it in commentary (#) in the CMakeLists file )
     bool        mIsNewFile;     // The file is new = it's not in the CMakeLists file yet
