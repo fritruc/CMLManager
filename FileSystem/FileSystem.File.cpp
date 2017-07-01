@@ -74,6 +74,14 @@ cFile::IsDirectory() const
 }
 
 
+int 
+cFile::BuildCMakeListEntryString( std::string* oString ) const
+{
+    *oString = "${RELATIVE_DIR}/" + Name();
+    return 0;
+}
+
+
 int
 cFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
@@ -84,7 +92,10 @@ cFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
     if( !IsCompiled() )
         iOFStream << "# ";
 
-    iOFStream << tabs << "${RELATIVE_DIR}/" << Name() << "\n";
+    std::string fileEntry;
+    BuildCMakeListEntryString( &fileEntry );
+
+    iOFStream << tabs << fileEntry << "\n";
 
     return 0;
 }
@@ -230,6 +241,9 @@ cFile::DebugPrint() const
         default :
             break;
     }
+
+    if( IsTargeted() )
+        printf( "   Targeted : %s", TargetName().c_str() );
 
     printf( "\n" );
 

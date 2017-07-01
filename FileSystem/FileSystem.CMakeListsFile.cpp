@@ -36,9 +36,12 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
     bool isCompiled = true;
     bool isNewFile = true;
 
-    std::string fileName = iFile->Name();
+    std::string fileEntry;
+    iFile->BuildCMakeListEntryString( &fileEntry );
 
-    EscapeAllRegChar( fileName );
+    // Regex is powerfull but kinda slow
+    //std::string fileName = iFile->Name();
+    //EscapeAllRegChar( fileName );
     //std::regex fileSeeking( "(?:TARGET=\/|}\/| |\()" + iFile->Name() + "[ )]*$" ); 
 
     if( file.is_open() )
@@ -65,8 +68,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                         return  0;
 
                     cFile* file = new  cFile( fileName );
-                    makeList->ReadFileProperty( file );
-                    // Now, because this extra include will give a path like : #INCLUDEFILE=../../someting/file.cpp
+                    // Now, because this extra include will give a path like : #INCLUDEFILE=/../../someting/file.cpp
                     // cFile constructor will cut the name to file.cpp
                     // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
                     // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
@@ -75,6 +77,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                         fileName = fileName.substr( 1 );
                     file->Name( fileName );
 
+                    makeList->ReadFileProperty( file );
                     mExtraIncludes.push_back( file );
                 }
                 else
@@ -87,8 +90,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                             return  0;
 
                         cDirectory* dir = new  cDirectory( dirName );
-                        makeList->ReadFileProperty( dir );
-                        // Now, because this extra include will give a path like : #INCLUDEFILE=../../someting/file.cpp
+                        // Now, because this extra include will give a path like : #INCLUDEFILE=/../../someting/file.cpp
                         // cFile constructor will cut the name to file.cpp
                         // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
                         // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
@@ -97,6 +99,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                             dirName = dirName.substr( 1 );
                         dir->Name( dirName );
 
+                        makeList->ReadFileProperty( dir );
                         mExtraIncludes.push_back( dir );
                     }
                 }
@@ -106,29 +109,27 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
         {
             while( getline( file, fileLine ) )
             {
-                std::size_t found;
-                found = fileLine.find( iFile->Name() );
-                if( found != std::string::npos )
+                //#TARGET=Name:STREQUAL:TVPDB
+                if( fileLine.find( "#TARGET" ) != std::string::npos )
+                {
+                    fileLine = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
+                    size_t firstDDotPos = fileLine.find_first_of( ':' );
+                    size_t lastDDotPos = fileLine.find_last_of( ':' );
+
+                    if( fileLine.substr( 0, firstDDotPos )  == iFile->Name() )
+                    {
+                        iFile->IsTargeted( true );
+                        iFile->TargetName( fileLine.substr( lastDDotPos + 1 ) );
+                        iFile->TargetOperator( fileLine.substr( firstDDotPos + 1, fileLine.size() - lastDDotPos + 1 ) );
+                    }
+                }
+                else if( fileLine.find( fileEntry ) != std::string::npos )
                 {
                 //if( std::regex_search( fileLine, fileSeeking ) )
                 //{
                     isNewFile = false;
 
-                    found = fileLine.find( "#TARGET" );
-                    if( found != std::string::npos )
-                    {
-                        fileLine = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
-                        size_t firstDDotPos = fileLine.find_first_of( ':' );
-                        size_t lastDDotPos = fileLine.find_last_of( ':' );
-
-                        iFile->IsTargeted( true );
-                        iFile->TargetName( fileLine.substr( lastDDotPos + 1 ) );
-                        iFile->TargetOperator( fileLine.substr( firstDDotPos + 1, fileLine.size() - lastDDotPos + 1 ) );
-                        continue;
-                    }
-
-                    found = fileLine.find( '#' );
-                    if( found != std::string::npos )
+                    if( fileLine.find( '#' ) != std::string::npos )
                         isCompiled = false;
 
                     break;

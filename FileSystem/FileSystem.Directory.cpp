@@ -47,6 +47,14 @@ cDirectory::IncDepth()
 }
 
 
+int 
+cDirectory::BuildCMakeListEntryString( std::string * oString ) const
+{
+    *oString = "SUBDIRECTORY( " + Name() + " )";
+    return 0;
+}
+
+
 int
 cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
 {
@@ -90,7 +98,10 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
     if( !IsCompiled() )
         iOFStream << "# ";
 
-    iOFStream << tabsSUBDORECTORY << "SUBDIRECTORY( " << Name() << " )\n";
+    std::string dirEntry;
+    BuildCMakeListEntryString( &dirEntry );
+
+    iOFStream << tabsSUBDORECTORY << dirEntry << "\n";
 
     if( FileOS() != kNone )
     {
@@ -467,7 +478,10 @@ cDirectory::DebugPrintContent() const
         }
         default:
             break;
-    }
+    }   
+    
+    if( IsTargeted() )
+        printf( "   Targeted : %s", TargetName().c_str() );
 
     printf( "\n" );
     std::string tabs;

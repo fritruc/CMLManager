@@ -43,6 +43,7 @@ public:
 //@{
     virtual  bool   IsDirectory()  const;
 
+    virtual  int    BuildCMakeListEntryString( std::string* oString ) const;
     virtual  int    PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const;
 //@}
 

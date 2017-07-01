@@ -49,6 +49,7 @@ protected:
 public:
 /**@Name CMakeLists */
 //@{
+    virtual  int    BuildCMakeListEntryString( std::string* oString ) const = 0;
     virtual  int    PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const = 0;
 
     int             WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs ) const;
