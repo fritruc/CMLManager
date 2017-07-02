@@ -170,6 +170,34 @@ cFileBase::WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs ) const
 }
 
 
+int 
+cFileBase::WriteTargetPart( std::string* oString, int iIntentTabs, const std::string& iTextInsideTargetPart ) const
+{
+    // In case oString == iTextInsideTargetPart
+    std::string inputTextCopy = iTextInsideTargetPart;
+    *oString = "";
+    std::string tabs;
+    for( int i = 0; i < iIntentTabs; ++i )
+        tabs.append( "    " );
+
+    /* Target naming
+
+    IF( ${CMAKE_BUILD_TYPE} STREQUAL "TVPDB" )
+    ADD_SUBDIRECTORY( TVPDB )
+    ENDIF()
+    IF( ${CMAKE_BUILD_TYPE} NOT STREQUAL "TVPDB" )
+    ADD_SUBDIRECTORY( TVPA )
+    ENDIF()
+    */
+
+    *oString += tabs + "IF( ${CMAKE_BUILD_TYPE} " + mTargetOperator + " \"" + mTargetName + "\" )\n";
+    *oString += "    " + inputTextCopy; // This text is already corretly tabulated, so just add one "    ", not tabs again
+    *oString += tabs + "ENDIF()\n";
+
+    return  0;
+}
+
+
 bool
 cFileBase::operator<( const cFileBase& iRHS ) const
 {

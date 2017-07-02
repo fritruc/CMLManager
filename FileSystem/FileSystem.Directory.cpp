@@ -89,24 +89,30 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
         }
     }
 
+    //==================
+
+    std::string stuffToWrite; 
+
     if( FileOS() != kNone )
     {
-        iOFStream << tabs << "\nIF( " + os + " )\n";
+        stuffToWrite += tabs + "\nIF( " + os + " )\n";
         tabsSUBDORECTORY.append( "    " );
     }
 
     if( !IsCompiled() )
-        iOFStream << "# ";
+        stuffToWrite += "# ";
 
     std::string dirEntry;
     BuildCMakeListEntryString( &dirEntry );
-
-    iOFStream << tabsSUBDORECTORY << dirEntry << "\n";
+    stuffToWrite += tabsSUBDORECTORY + dirEntry + "\n";
 
     if( FileOS() != kNone )
-    {
-        iOFStream << tabs << "ENDIF( " + os + " )\n\n";
-    }
+        stuffToWrite += tabs + "ENDIF( " + os + " )\n"; 
+
+    if( IsTargeted() )
+        WriteTargetPart( &stuffToWrite, iIntentTabs, stuffToWrite );
+
+    iOFStream << stuffToWrite << "\n";
 
     return 0;
 }
@@ -199,12 +205,14 @@ cDirectory::ReadAllPropertiesFromCMakeListsFile()
     return 0;
 }
 
+
 static
 bool
 CompareFiles( const  cFileBase* iRHS, const  cFileBase* iLHS )
 {
     return  iRHS->Name() < iLHS->Name();
 }
+
 
 int
 cDirectory::SortAlphabetically()
@@ -416,16 +424,6 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
                 break; //Assuming dir are given first and files then
         }
     }
-
-    /* Target naming
-
-    IF( ${CMAKE_BUILD_TYPE} STREQUAL "TVPDB" )
-        ADD_SUBDIRECTORY( TVPDB )
-    ENDIF()
-    IF( ${CMAKE_BUILD_TYPE} STRNEQUAL "TVPDB" )
-        ADD_SUBDIRECTORY( TVPA )
-    ENDIF()
-    */
 
     return 0;
 }

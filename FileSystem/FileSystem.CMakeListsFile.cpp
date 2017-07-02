@@ -120,7 +120,7 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
                     {
                         iFile->IsTargeted( true );
                         iFile->TargetName( fileLine.substr( lastDDotPos + 1 ) );
-                        iFile->TargetOperator( fileLine.substr( firstDDotPos + 1, fileLine.size() - lastDDotPos + 1 ) );
+                        iFile->TargetOperator( fileLine.substr( firstDDotPos + 1, fileLine.size() - lastDDotPos + 2 ) );
                     }
                 }
                 else if( fileLine.find( fileEntry ) != std::string::npos )

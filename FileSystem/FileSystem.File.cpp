@@ -89,13 +89,20 @@ cFile::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) const
     for( int i = 0; i < iIntentTabs; ++i )
         tabs.append( "    " );
 
+    std::string stuffToWrite;
+
     if( !IsCompiled() )
-        iOFStream << "# ";
+        stuffToWrite += "# ";
 
     std::string fileEntry;
     BuildCMakeListEntryString( &fileEntry );
 
-    iOFStream << tabs << fileEntry << "\n";
+    stuffToWrite += tabs + fileEntry + "\n";
+
+    if( IsTargeted() )
+        WriteTargetPart( &stuffToWrite, iIntentTabs, stuffToWrite );
+
+    iOFStream << stuffToWrite;
 
     return 0;
 }

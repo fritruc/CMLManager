@@ -54,6 +54,7 @@ public:
 
     int             WriteSetHeaderPart( std::ofstream& iOFStream, int iIntentTabs ) const;
     int             WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs ) const;
+    int             WriteTargetPart( std::string* oString, int iIntentTabs, const std::string& iTextInsideTargetPart ) const;
 //@}
 
 public:
