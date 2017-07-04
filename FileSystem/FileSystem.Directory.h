@@ -47,6 +47,10 @@ public:
     int  SetMakeFile( cCMakeListsFile* iCMakeFile );
 
     bool IsThereOSSpecificFileInContent( cFile::eOS iOS ) const;
+
+    bool  ContainsSubDir() const;
+    bool  ContainsOSSpecificSourceFiles() const;
+    bool  ContainsSourceFiles() const;
 //@}
 
 public:
@@ -72,9 +76,14 @@ public:
 private:
     std::vector< cFileBase* >   mContent;
     cCMakeListsFile*            mCMakeFile;
+
+    //Flags
+    bool                        mContainsSubDir;
+    bool                        mContainsSourceFiles;
+    bool                        mContainsOSSpecificSourceFiles;
 };
 
 
-} 
+}
 
 
