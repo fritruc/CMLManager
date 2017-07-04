@@ -110,7 +110,7 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
     stuffToWrite += tabsSUBDORECTORY + dirEntry + "\n";
 
     if( FileOS() != kNone )
-        stuffToWrite += tabs + "ENDIF( " + os + " )\n";
+        stuffToWrite += tabs + "ENDIF( " + os + " )\n\n";
 
     if( IsTargeted() )
         WriteTargetPart( &stuffToWrite, iIntentTabs, stuffToWrite );
@@ -166,16 +166,8 @@ cDirectory::AddContent( cFileBase* iFile )
         mContainsSourceFiles = true;
 
     cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
-    if( fileOSSpecific )
-    {
-        if( fileOSSpecific->FileOS() != kNone )
-            mContainsOSSpecificSourceFiles = true;
-
-        // If we meet an os specific file and if this directory is OS specific,
-        // then it'll be specific to that same OS
-        if( FileOS() != kNone )
-            fileOSSpecific->FileOS( FileOS() );
-    }
+    if( fileOSSpecific && fileOSSpecific->FileOS() != kNone )
+        mContainsOSSpecificSourceFiles = true;
 
     iFile->IncDepth();
     mContent.push_back( iFile );
@@ -272,7 +264,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
     cMakeListsFile.open( Path() + "/CMakeLists.txt", std::ios::in | std::ios::trunc );
 
     //Start of file
-    cMakeListsFile << "# ------CMakesLists file generated with CMLManager ------ \n\n";
+    cMakeListsFile << "# -----------------CMakesLists file : " << Name() << " --------------- \n\n";
 
     // Output Target infos
     for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
@@ -281,7 +273,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
             cMakeListsFile << "#TARGET=" + ( *i )->Name() + ":" + ( *i )->TargetOperator() + ":" + ( *i )->TargetName() + "\n";
     }
 
-    cMakeListsFile << "\n\n";
+    cMakeListsFile << "\n";
 
     // If we have a CMakeLists file in that directory, we output his things : Extra includes
     if( mCMakeFile )
