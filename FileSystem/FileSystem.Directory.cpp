@@ -47,10 +47,10 @@ cDirectory::IncDepth()
 }
 
 
-int 
+int
 cDirectory::BuildCMakeListEntryString( std::string * oString ) const
 {
-    *oString = "SUBDIRECTORY( " + Name() + " )";
+    *oString = "ADD_SUBDIRECTORY( " + Name() + " )";
     return 0;
 }
 
@@ -91,7 +91,7 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
 
     //==================
 
-    std::string stuffToWrite; 
+    std::string stuffToWrite;
 
     if( FileOS() != kNone )
     {
@@ -107,12 +107,12 @@ cDirectory::PrintInCMakeListFile( std::ofstream& iOFStream, int iIntentTabs ) co
     stuffToWrite += tabsSUBDORECTORY + dirEntry + "\n";
 
     if( FileOS() != kNone )
-        stuffToWrite += tabs + "ENDIF( " + os + " )\n"; 
+        stuffToWrite += tabs + "ENDIF( " + os + " )\n";
 
     if( IsTargeted() )
         WriteTargetPart( &stuffToWrite, iIntentTabs, stuffToWrite );
 
-    iOFStream << stuffToWrite << "\n";
+    iOFStream << stuffToWrite;
 
     return 0;
 }
@@ -225,6 +225,11 @@ cDirectory::SortAlphabetically()
 int
 cDirectory::CreateCMakeListFile( bool iRecursive )
 {
+    //TODO: Add flags in directory to know if there is any directory, os spec file, sourcefile within
+    // so we can avoid writing parts like #------ Directory ------- for nothing
+    // + If a directory contains nothing, we don't add it
+
+
     // If directory is empty, we don't create a CMakeLists file
     if( mContent.size() == 0 )
         return  0;
@@ -235,7 +240,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
 
     //Start of file
     cMakeListsFile << "# ------CMakesLists file generated with CMLManager ------ \n\n";
-    
+
     // Output Target infos
     for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
     {
@@ -257,8 +262,6 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
     {
         if( (*i)->IsDirectory() )
             (*i)->PrintInCMakeListFile( cMakeListsFile, 0 );
-        else
-            break; //Assuming dir are given first and files then
     }
 
     cMakeListsFile << "\n\n";
@@ -420,8 +423,6 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
         {
             if( (*i)->IsDirectory() )
                 dynamic_cast< cDirectory* >( *i )->CreateCMakeListFile( iRecursive );
-            else
-                break; //Assuming dir are given first and files then
         }
     }
 
@@ -476,8 +477,8 @@ cDirectory::DebugPrintContent() const
         }
         default:
             break;
-    }   
-    
+    }
+
     if( IsTargeted() )
         printf( "   Targeted : %s", TargetName().c_str() );
 
