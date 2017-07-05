@@ -9,6 +9,7 @@
 #include <locale>
 #include <fstream>
 #include <string.h>
+#include <iostream>
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -122,6 +123,40 @@ cFileSystem::ReadDirectory( const std::string& iPath )
     mainDirectory->ReadAllPropertiesFromCMakeListsFile();
 
     return  mainDirectory;
+}
+
+
+int 
+cFileSystem::GenerateCMakeLists( const std::string& iPath, bool iUserConfirm, bool iRecursive )
+{
+    ::nFileSystem::cDirectory* mainDir = ReadDirectory( iPath );
+    if( !mainDir )
+    {
+        printf( "%s does not name a file or directory\n", iPath.c_str() );
+        return  1;
+    }
+
+    mainDir->SortAlphabetically();
+    mainDir->DebugPrint();
+
+    if( iUserConfirm )
+    {
+        char input;
+
+        std::cout << "Generate CMakeLists ? (y/n)\n";
+        std::cin >> input;
+
+        if( input != 'y' && input != 'Y' )
+            return  0;
+    }
+
+    std::cout << "Generating CMakeLists ...\n";
+    mainDir->CreateCMakeListFile( iRecursive );
+    std::cout << "Done\n";
+
+    delete  mainDir;
+
+    return  0;
 }
 
 

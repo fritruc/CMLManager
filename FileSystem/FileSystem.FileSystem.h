@@ -33,6 +33,8 @@ public:
     /** Reads a directory and creates the whole file tree associated */
     static  cDirectory* ReadDirectory( const std::string& iPath );
 
+    int     GenerateCMakeLists( const std::string& iPath, bool iUserConfirm, bool iRecursive );
+
 private:
     /** Reads user options */
     int  ReadOptions();

@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <string.h>
 
 
 int
@@ -14,41 +15,25 @@ main( int argc, char** argv )
     if( !fileSystem )
         return  1;
 
-    for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
+    if( argc > 1 )
+    { 
+        bool noConfirm = ( argc > 2 && !strcmp( argv[ 2 ], "-noconfirm" ) );
+        bool recursive = ( argc > 3 && !strcmp( argv[ 3 ], "-recursive" ) );
+        std::cout << "Running generation over : " << argv[ 1 ] << " with parameters :\n";
+        std::cout << "UserConfirm : " << !noConfirm << "\n";
+        std::cout << "Recursive : " << recursive << "\n";
+
+        fileSystem->GenerateCMakeLists( argv[ 1 ], !noConfirm, recursive );
+    }
+    else
     {
-        ::nFileSystem::cDirectory* mainDir = ::nFileSystem::cFileSystem::ReadDirectory( fileSystem->FavoritePath( i ) );
-        if( !mainDir )
+        for( unsigned int i = 0; i < fileSystem->FavoriteCount(); ++i )
         {
-            printf( "%s does not name a file or directory\n", fileSystem->FavoritePath( i ).c_str() );
-            continue;
+            fileSystem->GenerateCMakeLists( fileSystem->FavoritePath( i ), true, true );
         }
-
-        mainDir->SortAlphabetically();
-
-        if( !mainDir )
-            return  0;
-
-        mainDir->DebugPrint();
-
-        char input;
-        
-        std::cout << "Generate CMakeLists ? (y/n)\n";
-        std::cin >> input;
-
-        if( input == 'y' || input == 'Y' )
-        {
-            std::cout << "Generating CMakeLists ...\n";
-            mainDir->CreateCMakeListFile( true );
-            std::cout << "Done\n";
-        }
-
-        delete  mainDir;
     }
 
-    delete  fileSystem;
-
-    char waitUser;
-    std::cin >> waitUser;
+    delete  fileSystem; 
 
     return 0;
 }
