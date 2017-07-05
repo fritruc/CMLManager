@@ -252,7 +252,10 @@ cDirectory::SortAlphabetically()
 int
 cDirectory::CreateCMakeListFile( bool iRecursive )
 {
-    if( !mContainsSourceFiles && !mContainsSubDir )
+    if( !mCMakeFile )
+        return  1;
+
+    if( mCMakeFile->Excluded() )
         return  0;
 
     // If directory is empty, we don't create a CMakeLists file

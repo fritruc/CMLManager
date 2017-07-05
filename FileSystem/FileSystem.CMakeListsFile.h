@@ -18,7 +18,13 @@ public:
 /**@Name Construction/Destruction */
 //@{
     virtual  ~cCMakeListsFile();
-    cCMakeListsFile( const std::string & iPath );
+    cCMakeListsFile( const std::string& iPath );
+//@}
+
+public:
+/**@Name Accessors/Modifiers */
+//@{
+    bool   Excluded()  const;
 //@}
 
 public:
@@ -51,7 +57,8 @@ public:
 
 
 private:
-    std::vector< cFileBase* > mExtraIncludes;
+    std::vector< cFileBase* >   mExtraIncludes;
+    bool                        mExcluded; //This CMakelist is excluded from generation
 
 };
 

@@ -15,9 +15,17 @@ cCMakeListsFile::~cCMakeListsFile()
 {
 }
 
-nFileSystem::cCMakeListsFile::cCMakeListsFile( const std::string & iPath ) :
-    tSuperClass( iPath )
+nFileSystem::cCMakeListsFile::cCMakeListsFile( const std::string& iPath ) :
+    tSuperClass( iPath ),
+    mExcluded( false )
 {
+}
+
+
+bool 
+cCMakeListsFile::Excluded() const
+{
+    return  mExcluded;
 }
 
 bool
@@ -79,29 +87,36 @@ cCMakeListsFile::ReadFileProperty( cFileBase* iFile )
 
                     makeList->ReadFileProperty( file );
                     mExtraIncludes.push_back( file );
+                    continue;
                 }
-                else
+
+                found = fileLine.find( "#INCLUDEDIR" );
+                if( found != std::string::npos )
                 {
-                    found = fileLine.find( "#INCLUDEDIR" );
-                    if( found != std::string::npos )
-                    {
-                        std::string dirName = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
-                        if( dirName.size() == 0 )
-                            return  0;
+                    std::string dirName = fileLine.substr( fileLine.find_first_of( '=' ) + 1 );
+                    if( dirName.size() == 0 )
+                        return  0;
 
-                        cDirectory* dir = new  cDirectory( dirName );
-                        // Now, because this extra include will give a path like : #INCLUDEFILE=/../../someting/file.cpp
-                        // cFile constructor will cut the name to file.cpp
-                        // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
-                        // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
-                        // So we put here fileName, being the path, as it's actual name
-                        if( dirName[ 0 ] == '/' )
-                            dirName = dirName.substr( 1 );
-                        dir->Name( dirName );
+                    cDirectory* dir = new  cDirectory( dirName );
+                    // Now, because this extra include will give a path like : #INCLUDEFILE=/../../someting/file.cpp
+                    // cFile constructor will cut the name to file.cpp
+                    // But in this special case, we actually don't want to simply print ${RELATIVE_DIR}/file.cpp
+                    // we want to print the whole thing ${RELATIVE_DIR}/../../someting/file.cpp
+                    // So we put here fileName, being the path, as it's actual name
+                    if( dirName[ 0 ] == '/' )
+                        dirName = dirName.substr( 1 );
+                    dir->Name( dirName );
 
-                        makeList->ReadFileProperty( dir );
-                        mExtraIncludes.push_back( dir );
-                    }
+                    makeList->ReadFileProperty( dir );
+                    mExtraIncludes.push_back( dir );
+                    continue;
+                }
+
+                found = fileLine.find( "#EXCLUDE" );
+                if( found != std::string::npos )
+                {
+                    mExcluded = true;
+                    continue;
                 }
             }
         }
