@@ -24,7 +24,7 @@ cDirectory::cDirectory( const std::string & iPath ) :
     tSuperClass( iPath ),
     mCMakeFile( 0 ),
     mContainsSubDir( false ),
-    mContainsSourceFiles( false ),
+    mContainsNonOSSpecificSourceFiles( false ),
     mContainsOSSpecificSourceFiles( false )
 {
     ReadOS();
@@ -161,17 +161,29 @@ int
 cDirectory::AddContent( cFileBase* iFile )
 {
     if( iFile->IsDirectory() )
-        mContainsSubDir = true;
+    {
+        mContainsSubDir = true; 
+    }
     else
-        mContainsSourceFiles = true;
+    {
+        cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
+        if( fileOSSpecific && fileOSSpecific->FileOS() != kNone )
+            mContainsOSSpecificSourceFiles = true;
+        else
+            mContainsNonOSSpecificSourceFiles = true;
+    }
 
-    cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
-    if( fileOSSpecific && !fileOSSpecific->IsDirectory() &&fileOSSpecific->FileOS() != kNone )
-        mContainsOSSpecificSourceFiles = true;
 
     iFile->IncDepth();
     mContent.push_back( iFile );
     return 0;
+}
+
+
+unsigned int 
+cDirectory::ContentCount() const
+{
+    return  mContent.size();
 }
 
 
@@ -205,9 +217,9 @@ cDirectory::ContainsSubDir() const
 
 
 bool
-cDirectory::ContainsSourceFiles() const
+cDirectory::ContainsNonOSSpecificSourceFiles() const
 {
-    return  mContainsSourceFiles;
+    return  mContainsNonOSSpecificSourceFiles;
 }
 
 
@@ -294,7 +306,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
             if( (*i)->IsDirectory() )
             {
                 cDirectory* dir = dynamic_cast< cDirectory* >( (*i) );
-                if( ( dir->ContainsSubDir() || dir->ContainsSourceFiles() ) )
+                if( dir->ContentCount() > 0 )
                     dir->PrintInCMakeListFile( cMakeListsFile, 0 );
             }
         }
@@ -303,7 +315,7 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
     }
 
 
-    if( mContainsSourceFiles )
+    if( mContainsNonOSSpecificSourceFiles )
     {
         cMakeListsFile << "#-------------------------FILES--------------------------\n";
         cMakeListsFile << "\n\n";

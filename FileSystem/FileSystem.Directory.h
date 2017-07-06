@@ -44,13 +44,15 @@ public:
 /**@Name Accessors/Modifiers */
 //@{
     int  AddContent( cFileBase* iFile );
+    unsigned int ContentCount() const;
+
     int  SetMakeFile( cCMakeListsFile* iCMakeFile );
 
     bool IsThereOSSpecificFileInContent( cFile::eOS iOS ) const;
 
     bool  ContainsSubDir() const;
     bool  ContainsOSSpecificSourceFiles() const;
-    bool  ContainsSourceFiles() const;
+    bool  ContainsNonOSSpecificSourceFiles() const;
 //@}
 
 public:
@@ -79,8 +81,8 @@ private:
 
     //Flags
     bool                        mContainsSubDir;
-    bool                        mContainsSourceFiles;
-    bool                        mContainsOSSpecificSourceFiles;
+    bool                        mContainsNonOSSpecificSourceFiles;
+    bool                        mContainsOSSpecificSourceFiles; 
 };
 
 
