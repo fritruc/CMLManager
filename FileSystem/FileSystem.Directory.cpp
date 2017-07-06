@@ -166,7 +166,7 @@ cDirectory::AddContent( cFileBase* iFile )
         mContainsSourceFiles = true;
 
     cFileOSSpecific* fileOSSpecific = dynamic_cast< cFileOSSpecific* >( iFile );
-    if( fileOSSpecific && fileOSSpecific->FileOS() != kNone )
+    if( fileOSSpecific && !fileOSSpecific->IsDirectory() &&fileOSSpecific->FileOS() != kNone )
         mContainsOSSpecificSourceFiles = true;
 
     iFile->IncDepth();
@@ -252,10 +252,7 @@ cDirectory::SortAlphabetically()
 int
 cDirectory::CreateCMakeListFile( bool iRecursive )
 {
-    if( !mCMakeFile )
-        return  1;
-
-    if( mCMakeFile->Excluded() )
+    if( mCMakeFile && mCMakeFile->Excluded() )
         return  0;
 
     // If directory is empty, we don't create a CMakeLists file
