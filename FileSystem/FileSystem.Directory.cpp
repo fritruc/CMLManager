@@ -162,7 +162,7 @@ cDirectory::AddContent( cFileBase* iFile )
 {
     if( iFile->IsDirectory() )
     {
-        mContainsSubDir = true; 
+        mContainsSubDir = true;
     }
     else
     {
@@ -180,7 +180,7 @@ cDirectory::AddContent( cFileBase* iFile )
 }
 
 
-unsigned int 
+unsigned int
 cDirectory::ContentCount() const
 {
     return  mContent.size();
@@ -265,7 +265,18 @@ int
 cDirectory::CreateCMakeListFile( bool iRecursive )
 {
     if( mCMakeFile && mCMakeFile->Excluded() )
+    {
+        if( iRecursive )
+        {
+            for( std::vector< cFileBase* >::iterator i( mContent.begin() ); i != mContent.end(); ++i )
+            {
+                if( (*i)->IsDirectory() )
+                    dynamic_cast< cDirectory* >( *i )->CreateCMakeListFile( iRecursive );
+            }
+        }
+
         return  0;
+    }
 
     // If directory is empty, we don't create a CMakeLists file
     if( mContent.size() == 0 )
@@ -314,13 +325,18 @@ cDirectory::CreateCMakeListFile( bool iRecursive )
         cMakeListsFile << "\n\n";
     }
 
+    if( mContainsNonOSSpecificSourceFiles || mContainsOSSpecificSourceFiles )
+    {
+        cMakeListsFile << "#--------------------------FILES-------------------------\n\n";
+        cMakeListsFile << "FILE( RELATIVE_PATH RELATIVE_DIR ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )\n\n";
+    }
+
 
     if( mContainsNonOSSpecificSourceFiles )
     {
-        cMakeListsFile << "#-------------------------FILES--------------------------\n";
+        cMakeListsFile << "#----------------------GENERIC FILES-----------------------\n";
         cMakeListsFile << "\n\n";
 
-        cMakeListsFile << "FILE( RELATIVE_PATH RELATIVE_DIR ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )\n\n";
 
         // Writes generic sources first
         WriteSetSourcePart( cMakeListsFile, 0 );
