@@ -1,38 +1,109 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_POLICY( SET CMP0054 NEW )
+
+# Project name
+PROJECT(CMLManager C CXX)
+
+IF( NOT TARGET )
+  STRING( TOUPPER "${CMAKE_SYSTEM_NAME}" VARPLATFORM )
+  MESSAGE( "target not set! Default target is the host platform : ${VARPLATFORM}" )
+ELSE()
+  STRING( TOUPPER "${TARGET}" VARPLATFORM )
+ENDIF()
+
+IF( "${VARPLATFORM}" STREQUAL "LINUX" )
+  SET( LINUX 1 )
+ELSE()
+  MESSAGE( SEND_ERROR "${VARPLATFORM} is not supported !" )
+  RETURN()
+ENDIF()
+
+MESSAGE( "CMAKE_BUILD_TYPE => ${CMAKE_BUILD_TYPE}" )
+IF( NOT CMAKE_BUILD_TYPE )
+  SET( CMAKE_BUILD_TYPE "Debug" )
+  MESSAGE( "Build type not set! Default value is ${CMAKE_BUILD_TYPE}" )
+ENDIF( NOT CMAKE_BUILD_TYPE )
+MESSAGE( "CMAKE_BUILD_TYPE => ${CMAKE_BUILD_TYPE}" )
+
+IF( NOT ARCH )
+  SET( ARCH 64 )
+  MESSAGE( "ARCH not set! Default value is ${ARCH}" )
+ELSEIF( ARCH EQUAL 64 )
+  MESSAGE( "ARCHITECTURE => 64 bits" )
+ELSEIF( ARCH EQUAL 32 )
+  MESSAGE( "ARCHITECTURE => 32 bits" )
+ELSE()
+  MESSAGE( "ERROR : WRONG ARCHITECTURE !" )
+  RETURN()
+ENDIF()
 
 ADD_SUBDIRECTORY( FileSystem )
 
-# ---------------------------------------------------------------------------------------------------------------
+#definitions
+SET( DEFINITIONS
+    ${DEFINITIONS}
+    -std=c++11
+  )
 
-FILE( RELATIVE_PATH RELATIVE_DIR ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
+#BUILD TYPES
+IF( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
+  SET( DEFINITIONS
+       ${DEFINITIONS}
+       -DDEBUG
+       -D_GLIBCXX_DEBUG
+  )
+ENDIF( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
 
-SET(
-    SRC_FILES
-    ${SRC_FILES}
-    ${RELATIVE_DIR}/main.cpp
-)
+IF( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
+  SET( DEFINITIONS
+       ${DEFINITIONS}
+  )
+ENDIF( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
 
-SET(
-    HEADER_FILES
-    ${HEADER_FILES}
-)
+#COMPILERS
+IF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
+  MESSAGE( "Using Clang as compiler" )
+  SET( DEFINITIONS
+       ${DEFINITIONS}
+      -Wall
+      -Wno-multichar
+      -Wno-deprecated-register
+      -Werror=return-type
+      -Werror=unicode-whitespace
+      -Qunused-arguments
+      -Wno-pragma-once-outside-header
+  )
+ELSEIF( CMAKE_COMPILER_IS_GNUCXX )
+  MESSAGE( "Using GNU as compiler" )
+  SET( DEFINITIONS
+       ${DEFINITIONS}
+      -Wall
+      -Wno-multichar
+      -Werror=return-type
+      -fdiagnostics-color=always
+  )
+ELSE()
+  MESSAGE( "Unknown compiler : ${CMAKE_CXX_COMPILER_ID}" )
+ENDIF( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
 
-#Set in parent scope
+ADD_DEFINITIONS( ${DEFINITIONS} )
 
-SET(
-    SRC_FILES
-    ${SRC_FILES}
-    PARENT_SCOPE
-)
+SET_SOURCE_FILES_PROPERTIES( HEADER_FILES PROPERTIES HEADER_FILE_ONLY TRUE )
 
-SET(
-    HEADER_FILES
-    ${HEADER_FILES}
-    PARENT_SCOPE
-)
+#Basic TARGETS
+ADD_EXECUTABLE( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" "main.cpp" ${SRC_FILES} ${HEADER_FILES} )
 
-SET(
-    INCLUDE_DIRECTORIES
-    ${INCLUDE_DIRECTORIES}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    PARENT_SCOPE
-)
+#TARGETS options
+IF( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
+  TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -g )
+ENDIF( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
+
+IF( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
+  TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -O3 )
+  TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -fomit-frame-pointer )
+  TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -s )
+  IF( ARCH EQUAL 64 )
+    TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -m64 )
+    TARGET_COMPILE_OPTIONS( "${PROJECT_NAME}_${CMAKE_BUILD_TYPE}${ARCH}" PUBLIC -march=athlon64 )
+  ENDIF( ARCH EQUAL 64 )
+ENDIF( ${CMAKE_BUILD_TYPE} STREQUAL "Release" )
