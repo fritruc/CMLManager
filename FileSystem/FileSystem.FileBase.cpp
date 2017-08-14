@@ -18,25 +18,37 @@ cFileBase::cFileBase( const std::string & iPath ) :
     mIsNewFile( true ),
     mDepth( 0 )
 {
-    mName = iPath.substr( iPath.find_last_of( '/' ) + 1 );
+    size_t position = iPath.find_last_of( '/' );
+    std::string finalPath = iPath;
+
+    // If we are in this situation : dirA/dirAA/, we don't wan't to extract name from last / -> we'd get nothing
+    // This is still a simplish solution, please don't pass in crazy pathes like /usr///home////whatever//// ....
+    // This is more a utility soft :D
+    if( position == iPath.length() - 1 )
+    {
+        finalPath = iPath.substr( 0, iPath.length() - 1 );
+        position  = finalPath.find_last_of( '/' );
+    }
+
+    mName = finalPath.substr( position + 1 );
 }
 
 
-const std::string& 
+const std::string&
 cFileBase::Path() const
 {
     return  mPath;
 }
 
 
-const std::string& 
+const std::string&
 cFileBase::Name() const
 {
     return  mName;
 }
 
 
-const int 
+const int
 cFileBase::Name( std::string & iName )
 {
     mName = iName;
@@ -44,14 +56,14 @@ cFileBase::Name( std::string & iName )
 }
 
 
-const std::string& 
+const std::string&
 cFileBase::TargetName() const
 {
     return  mTargetName;
 }
 
 
-int 
+int
 cFileBase::TargetName( const std::string& iTargetName )
 {
     mTargetName = iTargetName;
@@ -59,14 +71,14 @@ cFileBase::TargetName( const std::string& iTargetName )
 }
 
 
-const std::string& 
+const std::string&
 cFileBase::TargetOperator() const
 {
     return  mTargetOperator;
 }
 
 
-int 
+int
 cFileBase::TargetOperator( const std::string& iTargetOperator )
 {
     mTargetOperator= iTargetOperator;
@@ -74,14 +86,14 @@ cFileBase::TargetOperator( const std::string& iTargetOperator )
 }
 
 
-bool 
+bool
 cFileBase::IsTargeted() const
 {
     return  mIsTargeted;
 }
 
 
-int 
+int
 cFileBase::IsTargeted( bool iIsTargeted )
 {
     mIsTargeted = iIsTargeted;
@@ -89,13 +101,13 @@ cFileBase::IsTargeted( bool iIsTargeted )
 }
 
 
-bool 
+bool
 cFileBase::IsCompiled() const
 {
     return  mIsCompiled;
 }
 
-int 
+int
 cFileBase::IsCompiled( bool iIsCompiled )
 {
     mIsCompiled = iIsCompiled;
@@ -103,14 +115,14 @@ cFileBase::IsCompiled( bool iIsCompiled )
 }
 
 
-bool 
+bool
 cFileBase::IsNewFile() const
 {
     return  mIsNewFile;
 }
 
 
-int 
+int
 cFileBase::IsNewFile( bool iIsNewFile )
 {
     mIsNewFile = iIsNewFile;
@@ -118,21 +130,21 @@ cFileBase::IsNewFile( bool iIsNewFile )
 }
 
 
-int 
+int
 cFileBase::Depth() const
 {
     return  mDepth;
 }
 
 
-int 
+int
 cFileBase::IncDepth()
 {
     ++mDepth;
     return 0;
 }
 
-int 
+int
 cFileBase::Depth( int iDepth )
 {
     mDepth = iDepth;
@@ -170,7 +182,7 @@ cFileBase::WriteSetSourcePart( std::ofstream& iOFStream, int iIntentTabs ) const
 }
 
 
-int 
+int
 cFileBase::WriteTargetPart( std::string* oString, int iIntentTabs, const std::string& iTextInsideTargetPart ) const
 {
     // In case oString == iTextInsideTargetPart
