@@ -1,38 +1,18 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT(CMLManager)
+
 
 ADD_SUBDIRECTORY( FileSystem )
 
-# ---------------------------------------------------------------------------------------------------------------
-
-FILE( RELATIVE_PATH RELATIVE_DIR ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
-
 SET(
     SRC_FILES
     ${SRC_FILES}
-    ${RELATIVE_DIR}/main.cpp
+    main.cpp
 )
 
-SET(
-    HEADER_FILES
-    ${HEADER_FILES}
-)
+SET_SOURCE_FILES_PROPERTIES( HEADER_FILES PROPERTIES HEADER_FILE_ONLY TRUE )
 
-#Set in parent scope
+ADD_DEFINITIONS(-std=c++11)
 
-SET(
-    SRC_FILES
-    ${SRC_FILES}
-    PARENT_SCOPE
-)
-
-SET(
-    HEADER_FILES
-    ${HEADER_FILES}
-    PARENT_SCOPE
-)
-
-SET(
-    INCLUDE_DIRECTORIES
-    ${INCLUDE_DIRECTORIES}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    PARENT_SCOPE
-)
+ADD_EXECUTABLE( ${PROJECT_NAME} ${SRC_FILES} ${HEADER_FILES} )
