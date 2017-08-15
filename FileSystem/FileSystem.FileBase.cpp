@@ -12,25 +12,34 @@ cFileBase::~cFileBase()
 
 
 cFileBase::cFileBase( const std::string & iPath ) :
-    mPath( iPath ),
+    mPath( "" ),
+    mName( "" ),
     mIsTargeted( false ),
     mIsCompiled( true ),
     mIsNewFile( true ),
     mDepth( 0 )
 {
-    size_t position = iPath.find_last_of( '/' );
-    std::string finalPath = iPath;
-
-    // If we are in this situation : dirA/dirAA/, we don't wan't to extract name from last / -> we'd get nothing
-    // This is still a simplish solution, please don't pass in crazy pathes like /usr///home////whatever//// ....
-    // This is more a utility soft :D
-    if( position == iPath.length() - 1 )
+    int count_slashes = 0;
+    for( auto  it = iPath.begin(); it != iPath.end(); ++it )
     {
-        finalPath = iPath.substr( 0, iPath.length() - 1 );
-        position  = finalPath.find_last_of( '/' );
+        if( *it == '/' )
+        {
+            ++count_slashes;
+            if( count_slashes > 1 )
+                continue;
+        }
+        else
+        {
+            count_slashes = 0;
+        }
+        mPath += *it;
     }
 
-    mName = finalPath.substr( position + 1 );
+    if( mPath.back() == '/' )
+        mPath.pop_back();
+
+    size_t position = mPath.find_last_of( '/' );
+    mName = mPath.substr( position + 1 );
 }
 
 
