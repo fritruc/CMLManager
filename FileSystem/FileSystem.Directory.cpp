@@ -2,6 +2,7 @@
 
 #include "FileSystem.CMakeListsFile.h"
 
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
