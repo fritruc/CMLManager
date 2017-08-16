@@ -50,14 +50,14 @@ cFileSystem::FavoriteCount() const
 cDirectory*
 cFileSystem::ReadDirectory( const std::string& iPath )
 {
-    DIR* directory = opendir( iPath.c_str() );
+    ::nFileSystem::cDirectory* mainDirectory = new ::nFileSystem::cDirectory( iPath );
+
+    DIR* directory = opendir( mainDirectory->Path().c_str() );
     if( directory == NULL )
     {
         printf( "Error while opening directory\n" );
         return  0;
     }
-
-    ::nFileSystem::cDirectory* mainDirectory = new ::nFileSystem::cDirectory( iPath );
 
     struct dirent *files;
     struct stat fileStat;
@@ -67,7 +67,7 @@ cFileSystem::ReadDirectory( const std::string& iPath )
         if( !strcmp( files->d_name, "." ) || !strcmp( files->d_name, ".." ) )
             continue;
 
-        std::string filePath = iPath;
+        std::string filePath = mainDirectory->Path();
         filePath.append( "/" );
         filePath.append( files->d_name );
 
@@ -126,13 +126,13 @@ cFileSystem::ReadDirectory( const std::string& iPath )
 }
 
 
-int 
+int
 cFileSystem::GenerateCMakeLists( const std::string& iPath, bool iUserConfirm, bool iRecursive )
 {
     ::nFileSystem::cDirectory* mainDir = ReadDirectory( iPath );
     if( !mainDir )
     {
-        printf( "%s does not name a file or directory\n", iPath.c_str() );
+        printf( "%s does not name a file or directory\n", mainDir->Path().c_str() );
         return  1;
     }
 

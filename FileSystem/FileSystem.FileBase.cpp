@@ -1,6 +1,7 @@
 #include "FileSystem.FileBase.h"
 
 #include <fstream>
+#include <regex>
 
 namespace nFileSystem
 {
@@ -11,7 +12,7 @@ cFileBase::~cFileBase()
 }
 
 
-cFileBase::cFileBase( const std::string & iPath ) :
+cFileBase::cFileBase( const std::string& iPath ) :
     mPath( "" ),
     mName( "" ),
     mIsTargeted( false ),
@@ -19,27 +20,14 @@ cFileBase::cFileBase( const std::string & iPath ) :
     mIsNewFile( true ),
     mDepth( 0 )
 {
-    int count_slashes = 0;
-    for( auto  it = iPath.begin(); it != iPath.end(); ++it )
-    {
-        if( *it == '/' )
-        {
-            ++count_slashes;
-            if( count_slashes > 1 )
-                continue;
-        }
-        else
-        {
-            count_slashes = 0;
-        }
-        mPath += *it;
-    }
+    std::string finalPath = std::regex_replace( iPath, std::regex( "/+" ), "/", std::regex_constants::match_default );
 
-    if( mPath.back() == '/' )
-        mPath.pop_back();
+    // If we are in this situation : dirA/dirAA/, we get rid of last /
+    if( finalPath.back() == '/' )
+        finalPath.pop_back();
 
-    size_t position = mPath.find_last_of( '/' );
-    mName = mPath.substr( position + 1 );
+    mName = finalPath.substr( finalPath.find_last_of( '/' ) + 1 );
+    mPath = finalPath;
 }
 
 
