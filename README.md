@@ -20,8 +20,3 @@ Usage :
         etc
 
     Then you just execute CMLManager with no args, it'll read option.txt
-
-
-For now, this won't be able to read paths like //A/B/C///, because it would take additional time to do it,
-and i don't think in the context of TVPaint, we will have to deal with that kind of path...
-Feel free to add if needed
